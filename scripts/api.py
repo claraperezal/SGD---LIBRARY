@@ -1,13 +1,49 @@
+## ===================================================
+## LIBRARY MANAGEMENT SYSTEM
+## CLARA PEREZ ALONSO
+## GABRIEL
+## ===================================================
+
 from flask import Flask, jsonify, request
+from dotenv import load_dotenv
 import logging
 import psycopg2
+import bcrypt
+import os
 import time
 
+
+# Load evironment variable
+load_dotenv()
+
+# Create the Flask application
 app = Flask(__name__) 
 
-### FALTA USER
+##########################################################
+## DATABASE CONECTION
+##########################################################
+def db_connection():
+    db = psycopg2.connect(
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT"),
+        database=os.getenv("DB_NAME")
+    )
+    return db
 
-
+##########################################################
+## ROOT ENDPOINT
+##########################################################
+@app.route('/')
+def hello():
+    """
+    Root endpoint to check that the server is alive
+    """
+    return """
+    <h1>Library Management System - SGD 2025/2026</h1>
+    <p> Server active. Use Postman to access the endpoints</p>
+    """
 ##########################################################
 ## MAIN
 ##########################################################
@@ -28,15 +64,12 @@ if __name__ == "__main__":
     logger.addHandler(ch)
 
 
-    time.sleep(1) # just to let the DB start before this print :-)
-
+    time.sleep(1) # just to let the DB start before this print 
 
 
     logger.info("\n---------------------------------------------------------------\n" + 
-                  "API v1.0 online: http://localhost:8080/sgdproj/user\n\n")
+                  "Library API online: http://localhost:8080/\n\n")
 
-
-    # NOTE: change to 5000 or remove the port parameter if you are running as a Docker container
     app.run(host="0.0.0.0", port=8080, debug=True, threaded=True)
 
 
