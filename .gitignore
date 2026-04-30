@@ -1,0 +1,26 @@
+# Variables de entorno 
+.env
+
+# Entorno virtual de Python
+venv/
+.venv/
+proj_sgd_env/
+env/
+
+# Archivos compilados de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs
+scripts/logs/*.log
+*.log
+
+# Editores
+.vscode/
+.idea/
+
+# Sistema
+.DS_Store
+Thumbs.db
