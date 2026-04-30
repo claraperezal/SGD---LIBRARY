@@ -329,3 +329,331 @@ API v1.0 online: http://localhost:8080/return_book
 
 WARNING:werkzeug: * Debugger is active!
 INFO:werkzeug: * Debugger PIN: 446-273-478
+INFO:werkzeug: * Detected change in 'C:\\Users\\clara\\OneDrive - Universidade da Coruña\\Escritorio\\Sistemas de Gestão de Dados\\PROYECTO\\SEGUNDA ENTREGA\\Projects\\SGD---LIBRARY\\scripts\\api.py', reloading
+INFO:werkzeug: * Restarting with stat
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/borrow_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/return_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/list_book
+
+
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://172.20.10.9:8080
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/borrow_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/return_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/list_book
+
+
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 446-273-478
+INFO:werkzeug:127.0.0.1 - - [30/Apr/2026 16:21:25] "GET /list_books HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Apr/2026 16:21:41] "[33mGET /return_books HTTP/1.1[0m" 404 -
+INFO:werkzeug: * Detected change in 'C:\\Users\\clara\\OneDrive - Universidade da Coruña\\Escritorio\\Sistemas de Gestão de Dados\\PROYECTO\\SEGUNDA ENTREGA\\Projects\\SGD---LIBRARY\\scripts\\api.py', reloading
+INFO:werkzeug: * Restarting with stat
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/borrow_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/return_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/list_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/find_book_by_name
+
+
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://172.20.10.9:8080
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/borrow_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/return_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/list_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/find_book_by_name
+
+
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 446-273-478
+INFO:werkzeug:127.0.0.1 - - [30/Apr/2026 16:25:48] "GET /find_book_by_name?name=libro HTTP/1.1" 200 -
+INFO:werkzeug: * Detected change in 'C:\\Users\\clara\\OneDrive - Universidade da Coruña\\Escritorio\\Sistemas de Gestão de Dados\\PROYECTO\\SEGUNDA ENTREGA\\Projects\\SGD---LIBRARY\\scripts\\api.py', reloading
+INFO:werkzeug: * Restarting with stat
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/borrow_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/return_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/list_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/find_book_by_name
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/find_book_by_isbn
+
+
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://172.20.10.9:8080
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/borrow_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/return_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/list_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/find_book_by_name
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/find_book_by_isbn
+
+
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 446-273-478
+INFO:werkzeug:127.0.0.1 - - [30/Apr/2026 16:27:18] "GET /find_book_by_isbn?isbn=123 HTTP/1.1" 200 -
+INFO:werkzeug: * Detected change in 'C:\\Users\\clara\\OneDrive - Universidade da Coruña\\Escritorio\\Sistemas de Gestão de Dados\\PROYECTO\\SEGUNDA ENTREGA\\Projects\\SGD---LIBRARY\\scripts\\api.py', reloading
+INFO:werkzeug: * Restarting with stat
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/borrow_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/return_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/list_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/find_book_by_name
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/find_book_by_isbn
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/top_loaned_books
+
+
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://172.20.10.9:8080
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/borrow_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/return_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/list_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/find_book_by_name
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/find_book_by_isbn
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/top_loaned_books
+
+
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 446-273-478
+INFO:werkzeug: * Detected change in 'C:\\Users\\clara\\OneDrive - Universidade da Coruña\\Escritorio\\Sistemas de Gestão de Dados\\PROYECTO\\SEGUNDA ENTREGA\\Projects\\SGD---LIBRARY\\scripts\\api.py', reloading
+INFO:werkzeug: * Restarting with stat
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/borrow_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/return_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/list_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/find_book_by_name
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/find_book_by_isbn
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/top_loaned_books
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/top_users
+
+
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://172.20.10.9:8080
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/borrow_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/return_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/list_book
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/find_book_by_name
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/find_book_by_isbn
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/top_loaned_books
+
+
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/top_users
+
+
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 446-273-478
+INFO:werkzeug:127.0.0.1 - - [30/Apr/2026 16:29:07] "GET /top_users HTTP/1.1" 200 -
+INFO:werkzeug: * Detected change in 'C:\\Users\\clara\\OneDrive - Universidade da Coruña\\Escritorio\\Sistemas de Gestão de Dados\\PROYECTO\\SEGUNDA ENTREGA\\Projects\\SGD---LIBRARY\\scripts\\api.py', reloading
+INFO:werkzeug: * Restarting with stat
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/sgdproj/user
+
+
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://172.20.10.9:8080
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+INFO:logger:
+---------------------------------------------------------------
+API v1.0 online: http://localhost:8080/sgdproj/user
+
+
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 446-273-478
+INFO:werkzeug:127.0.0.1 - - [30/Apr/2026 16:33:10] "POST /sgdproj/user HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Apr/2026 16:33:44] "[31m[1mGET /sgdproj/user HTTP/1.1[0m" 405 -
+INFO:werkzeug: * Detected change in 'C:\\Users\\clara\\OneDrive - Universidade da Coruña\\Escritorio\\Sistemas de Gestão de Dados\\PROYECTO\\SEGUNDA ENTREGA\\Projects\\SGD---LIBRARY\\scripts\\api.py', reloading

@@ -73,10 +73,10 @@ CREATE TABLE book (
 		REFERENCES administrator(users_user_id)
 		ON DELETE SET NULL,
 
-	CONSTRAINT chk_num_pages_positve
+	CONSTRAINT chk_num_pages_positive
 		CHECK (num_pages > 0),
 
-	CONSTRAINT chk_num_copies_negative
+	CONSTRAINT chk_num_copies_non_negative
 		CHECK (num_copies >= 0)
 );
 
@@ -88,8 +88,7 @@ CREATE TABLE book_genre (
 
 	CONSTRAINT fk_book_genre_book
 		FOREIGN KEY(book_isbn)
-		REFERENCES book(isbn)
-		ON DELETE CASCADE,
+		REFERENCES book(isbn),
 
 	CONSTRAINT fk_book_genre_genre
 		FOREIGN KEY(genre_genre_id)
@@ -110,14 +109,13 @@ CREATE TABLE loan (
 
 	CONSTRAINT fk_loan_book
 		FOREIGN KEY(book_isbn)
-		REFERENCES book(isbn)
-		ON DELETE CASCADE,
+		REFERENCES book(isbn),
 
-	CONSTRAINT chk_retunr_after_loan
+	CONSTRAINT chk_return_after_loan
 		CHECK (return_date IS NULL OR return_date >= loan_date)
 );
 
-CREATE TABLE review (
+CREATE TABLE review(
 	review_id		 BIGSERIAL,
 	rating		 INTEGER NOT NULL,
 	comment		 TEXT,
@@ -132,8 +130,7 @@ CREATE TABLE review (
 
 	CONSTRAINT fk_review_book
 		FOREIGN KEY (book_isbn)
-		REFERENCES book(isbn)
-		ON DELETE CASCADE,
+		REFERENCES book(isbn),
 
 	CONSTRAINT uq_review_reader_book
 		UNIQUE (readers_users_user_id, book_isbn),
