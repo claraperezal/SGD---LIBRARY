@@ -17,29 +17,31 @@ CREATE TABLE users (
 	username VARCHAR(50) NOT NULL,
 	email	 VARCHAR(100) NOT NULL,
 	password VARCHAR(255) NOT NULL,
-	PRIMARY KEY(user_id)
+	PRIMARY KEY(user_id),
+	UNIQUE(username),
+	UNIQUE(email)
 );
 
 CREATE TABLE administrator (
-	users_user_id INTEGER,
+	users_user_id INTEGER NOT NULL,
 	PRIMARY KEY(users_user_id),
-	CONSTRAINT fk_readers_user
+	CONSTRAINT fk_administrator_user
 	FOREIGN KEY (users_user_id)
 	REFERENCES users(user_id)
 	ON DELETE CASCADE
 );
 
 CREATE TABLE librarian (
-	users_user_id INTEGER,
+	users_user_id INTEGER NOT NULL,
 	PRIMARY KEY(users_user_id),
-	CONSTRAINT fk_readers_user
+	CONSTRAINT fk_librarian_user
 	FOREIGN KEY (users_user_id)
 	REFERENCES users(user_id)
 	ON DELETE CASCADE
 );
 
 CREATE TABLE readers (
-	users_user_id INTEGER,
+	users_user_id INTEGER NOT NULL,
 	PRIMARY KEY(users_user_id),
 	CONSTRAINT fk_readers_user
 	FOREIGN KEY (users_user_id)
@@ -49,7 +51,7 @@ CREATE TABLE readers (
 
 
 CREATE TABLE genre (
-	genre_id INTEGER,
+	genre_id SERIAL,
 	name	 VARCHAR(100) NOT NULL UNIQUE,
 	PRIMARY KEY(genre_id)
 );
@@ -63,17 +65,18 @@ CREATE TABLE book (
 	num_pages	     INTEGER NOT NULL,
 	num_copies		 INTEGER NOT NULL,
 	registration_date		 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	administrator_users_user_id INTEGER NOT NULL,
+	administrator_users_user_id INTEGER,
 	PRIMARY KEY(isbn),
 
 	CONSTRAINT fk_book_administrator
 		FOREIGN KEY (administrator_users_user_id)
-		REFERENCES administrator(users_user_id),
+		REFERENCES administrator(users_user_id)
+		ON DELETE SET NULL,
 
 	CONSTRAINT chk_num_pages_positve
 		CHECK (num_pages > 0),
 
-	CONSTRAINT chk_num_pages_negative
+	CONSTRAINT chk_num_copies_negative
 		CHECK (num_copies >= 0)
 );
 
@@ -107,14 +110,15 @@ CREATE TABLE loan (
 
 	CONSTRAINT fk_loan_book
 		FOREIGN KEY(book_isbn)
-		REFERENCES book(isbn),
+		REFERENCES book(isbn)
+		ON DELETE CASCADE,
 
 	CONSTRAINT chk_retunr_after_loan
-		CHECK (return_date IS NOT NULL OR return_date >= loan_date)
+		CHECK (return_date IS NULL OR return_date >= loan_date)
 );
 
 CREATE TABLE review (
-	review_id		 BIGINT,
+	review_id		 BIGSERIAL,
 	rating		 INTEGER NOT NULL,
 	comment		 TEXT,
 	review_date		 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -128,7 +132,8 @@ CREATE TABLE review (
 
 	CONSTRAINT fk_review_book
 		FOREIGN KEY (book_isbn)
-		REFERENCES book(isbn),
+		REFERENCES book(isbn)
+		ON DELETE CASCADE,
 
 	CONSTRAINT uq_review_reader_book
 		UNIQUE (readers_users_user_id, book_isbn),
@@ -137,3 +142,11 @@ CREATE TABLE review (
 		CHECK (rating BETWEEN 1 AND 5)
 		
 );
+
+CREATE INDEX idx_loan_active
+ON loan (book_isbn)
+WHERE return_date IS NULL;
+
+CREATE INDEX idx_user_loans
+ON loan (readers_users_user_id)
+WHERE return_date IS NULL;
