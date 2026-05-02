@@ -136,5 +136,11 @@ ALTER TABLE book_author ADD CONSTRAINT book_author_fk1 FOREIGN KEY (book_isbn) R
 ALTER TABLE book_author ADD CONSTRAINT book_author_fk2 FOREIGN KEY (author_author_id) REFERENCES author(author_id);
 ALTER TABLE book_genre ADD CONSTRAINT book_genre_fk1 FOREIGN KEY (book_isbn) REFERENCES book(isbn);
 ALTER TABLE book_genre ADD CONSTRAINT book_genre_fk2 FOREIGN KEY (genre_genre_id) REFERENCES genre(genre_id);
-
 """
+query(conn, create_tables)
+
+genres_types = pd.read_csv('csv/genre.csv')
+for row in genres_types.values:
+    query(conn, 'INSERT INTO genre (genre_id, name) values(%s,%s)', (row[0], row[1],))
+
+
