@@ -147,3 +147,11 @@ WHERE return_date IS NULL;
 CREATE INDEX idx_user_loans
 ON loan (readers_users_user_id)
 WHERE return_date IS NULL;
+
+
+-- Create administrator
+INSERT INTO users(username, email, password)
+VALUES ('admin', 'adminlibrarya@gmail.com', 'admin123')
+
+INSERT INTO administrator(users_user_id)
+VALUES ((SELECT user_id FROM users WHERE username ='admin'));
