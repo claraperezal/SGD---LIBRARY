@@ -351,9 +351,9 @@ def update_copies():
 ##########################################################
 ## ENDPOINT 4: 
 ##########################################################
-@app.route('/sgdproj/list_book_by_genre', methods=['GET'])
-def list_book_by_genre():
-    logger.info('### POST /sgdproj/list_book_by_genre ###')
+@app.route('/sgdproj/list_books_by_genre', methods=['GET'])
+def list_books_by_genre():
+    logger.info('### POST /sgdproj/list_books_by_genre ###')
     payload = request.get_json()
     logger.debug(f'payload: {payload}')
 
@@ -1112,7 +1112,7 @@ def TopLoaners(N):
 
             cur.execute(""" 
                         SELECT DISTINCT b.title
-                        FROM loan l JOIN book n ON l.book_isbn = b.isbn
+                        FROM loan l JOIN book b ON l.book_isbn = b.isbn
                         WHERE l.readers_users_user_id = %s
                         """, (uid,))
             books = [b[0] for b in cur.fetchall()]
@@ -1121,7 +1121,7 @@ def TopLoaners(N):
                         SELECT b.title
                         FROM loan l JOIN book n ON l.book_isbn = b.isbn
                         WHERE l.readers_users_user_id = %s
-                        ORDER BY l.lona_date DESC
+                        ORDER BY l.loan_date DESC
                         LIMIT 1
                         """, (uid,))
 
@@ -1129,7 +1129,7 @@ def TopLoaners(N):
             last_book = last_book[0] if last_book else None
 
             result.append({
-                'loaner_id':id,
+                'loaner_id':uid,
                 'loaner_name': uname,
                 'loaned_books_quantity':qty,
                 'loaned_books':books,
@@ -1179,7 +1179,7 @@ def available_books_by_genre():
     try:
         cur.execute(
             """
-                SELECT b.isbn, b.title, b.description, b.num_copies, b.num_copies - COUNT(l.loan_id) AS avialble_cooies, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY r.rating) AS rating
+                SELECT b.isbn, b.title, b.description, b.num_copies, b.num_copies - COUNT(l.loan_id) AS avilable_copies, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY r.rating) AS rating
                 FROM book b JOIN book_genre bg ON b.isbn = bg.book_isbn
                             LEFT JOIN loan l ON b.isbn=l.book_isbn AND l.return_date IS NULL
                             LEFT JOIN review r ON b.isbn =r.book_isbn
@@ -1194,7 +1194,7 @@ def available_books_by_genre():
         result = []
 
         for row in rows:
-            isbn, title, copies, desc, available, rating = row
+            isbn, title, desc, copies, available, rating = row
 
             result.append({
                 'ISBN':isbn,
@@ -1292,6 +1292,357 @@ def check_book():
     finally:
             conn.close()
 
+
+
+
+
+
+### me da error
+#########################################################
+## ENDPOINT 13: 
+##########################################################
+@app.route('/sgdproj/borrow_book', methods=['POST'])
+def borrow_book():
+    payload = request.get_json()
+    required_fields = ['user_id', 'ISBN']
+    for field in required_fields:
+        if field not in payload:
+                return jsonify({'status': 400,
+                                'errors':f'Missing required field:{field}'})
+
+
+    user_id = payload['user_id']
+    isbn = payload['ISBN']
+
+    conn = db_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("SELECT * FROM readers WHERE users_user_id = %s", (user_id,))
+        
+        if not cur.fetchone():
+            conn.rollback()
+            return jsonify({'status': 400,
+                            'errors':'User is not a reader'})
+        cur.execute(
+            """
+                SELECT num_copies
+                FROM book 
+                WHERE isbn = %s
+                FOR UPDATE 
+            """,
+            (isbn,))
+
+            
+        book = cur.fetchone()
+
+        if not book:
+            conn.rollback()
+            return jsonify({'status': 400,
+                            'errors':'Book does not exist'})
+        total_copies = book[0]
+
+        cur.execute("""
+                    SELECT COUNT(*) 
+                    FROM loan 
+                    WHERE readers_users_user_id = %s
+                    AND return_date IS NULL
+                    """, (user_id,))
+
+        active_loans = cur.fetchone()[0]
+        if active_loans >= 5:
+            conn.rollback()
+            return jsonify({'status': 400,
+                            'errors':'User already has 5 borrowed books'})
+
+
+
+        cur.execute("""
+                SELECT *
+                FROM loan
+                WHERE readers_users_user_id = %s
+                AND book_isbn = %s
+                AND return_date IS NULL
+            """, (user_id, isbn))
+
+        if cur.fetchone():
+            conn.rollback()
+            return jsonify({'status': 400, 'errors': 'User already borrowed this book'})
+
+        
+        cur.execute("""
+                    SELECT COUNT(*) 
+                    FROM loan 
+                    WHERE book_isbn = %s
+                    AND return_date IS NULL
+                    """, (isbn,))
+        
+
+        borrowed = cur.fetchone()[0]
+        if borrowed >= total_copies:
+            conn.rollback()
+            return jsonify({'status': 400,
+                            'errors':'No copies available'})
+
+        cur.execute("""
+                    INSERT INTO loan(readers_users_user_id, book_isbn) 
+                    VALUES (%s, %s)
+                    """, (user_id, isbn))
+        
+        conn.commit()
+
+        return jsonify({
+            'status':200,
+            'results': isbn })      
+    
+    
+    except (Exception,psycopg2.DatabaseError) as e:
+        conn.rollback()
+        return jsonify({'status': 500,
+                        'errors':str(e)
+        })
+    
+    finally:
+            conn.close()
+
+
+
+#########################################################
+## ENDPOINT 14: 
+##########################################################
+@app.route('/sgdproj/submit_review', methods=['POST'])
+def submit_review():
+    payload = request.get_json()
+    required_fields = ['user_id', 'ISBN', 'rating', 'comment']
+    for field in required_fields:
+        if field not in payload:
+                return jsonify({'status': 400,
+                                'errors':f'Missing required field:{field}'})
+
+
+    user_id = payload['user_id']
+    isbn = payload['ISBN']
+    rating = payload['rating']
+    comment = payload['comment']
+
+    if rating < 1 or rating >5:
+        return jsonify({'status': 400,
+                                'errors': 'Rating  must be between 1 and 5'})
+
+    conn = db_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("SELECT * FROM readers WHERE users_user_id = %s", (user_id,))
+        
+        if not cur.fetchone():
+            conn.rollback()
+            return jsonify({'status': 400,
+                            'errors':'User not is a reader'})
+        
+
+        cur.execute("SELECT * FROM loan WHERE readers_users_user_id = %s AND book_isbn =%s", (user_id,isbn))
+        
+        if not cur.fetchone():
+            conn.rollback()
+            return jsonify({'status': 400,
+                            'errors':'User has not borrowed this book'})
+        cur.execute(
+            """
+                SELECT review_id
+                FROM review
+                WHERE readers_users_user_id = %s AND book_isbn = %s
+            """,
+            (user_id, isbn))
+
+        
+        exsisting = cur.fetchone()
+
+        if exsisting:
+            cur.execute(""" 
+                        UPDATE review SET rating = %s, comment = %s, review_date = CURRENT_TIMESTAMP
+                        WHERE readers_users_user_id = %s AND book_isbn = %s
+                        """, (rating,comment, user_id, isbn))
+        else:
+            cur.execute("""
+                        INSERT INTO review (rating, comment, readers_users_user_id, book_isbn)
+                        VALUES (%s, %s, %s, %s)
+                        """, (rating, comment, user_id, isbn)) 
+        
+        conn.commit()
+
+        return jsonify({
+            'status':200,
+            'results': isbn })      
+    
+    
+    except (Exception,psycopg2.DatabaseError) as e:
+        conn.rollback()
+        return jsonify({'status': 500,
+                        'errors':str(e)
+        })
+    
+    finally:
+            conn.close()
+
+
+
+
+#########################################################
+## ENDPOINT 15: 
+##########################################################
+@app.route('/sgdproj/return_book', methods=['POST'])
+def return_book():
+    payload = request.get_json()
+    required_fields = ['user_id', 'ISBN']
+    for field in required_fields:
+        if field not in payload:
+                return jsonify({'status': 400,
+                                'errors':f'Missing required field:{field}'})
+
+
+    user_id = payload['user_id']
+    isbn = payload['ISBN']
+
+    conn = db_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("SELECT * FROM readers WHERE users_user_id = %s", (user_id,))
+        
+        if not cur.fetchone():
+            conn.rollback()
+            return jsonify({'status': 400,
+                            'errors':'User is not a reader'})
+        
+
+        cur.execute(""" SELECT loan_id 
+                        FROM loan 
+                        WHERE readers_users_user_id = %s AND book_isbn =%s AND return_date IS NULL""", (user_id,isbn))
+        loan = cur.fetchone()
+        if not loan:
+            return jsonify({'status': 400,
+                            'errors':'No active loan found'})
+        loan_id = loan[0]
+        cur.execute(""" UPDATE loan
+                        SET return_date = CURRENT_TIMESTAMP 
+                        WHERE loan_id = %s
+                    """, (loan_id,))
+        
+
+        conn.commit()
+
+        return jsonify({
+            'status':200,
+            'results': user_id })      
+    
+    
+    except (Exception,psycopg2.DatabaseError) as e:
+        conn.rollback()
+        return jsonify({'status': 500,
+                        'errors':str(e)
+        })
+    
+    finally:
+            conn.close()
+
+
+
+#########################################################
+## ENDPOINT 16: 
+##########################################################
+@app.route('/sgdproj/report/TopLoanedGenres12Months/<int:N>', methods=['GET'])
+def top_loaned_genres(N):
+    payload = request.get_json()
+    required_fields = ['username', 'password']
+    for field in required_fields:
+        if field not in payload:
+                return jsonify({'status': 400,
+                                'errors':f'Missing required field:{field}'})
+
+
+    username = payload['username']
+    password = payload['password']
+
+    conn = db_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            """
+                SELECT user_id, password
+                FROM users
+                WHERE username = %s        
+            """,
+            (username,))
+        user = cur.fetchone()
+
+        if not user:
+            return jsonify({'status': 400,
+                        'errors':f'User does not exist'})
+
+        user_id, db_password = user
+
+        if password != db_password:
+            return jsonify({'status': 400,
+                        'errors':f'Invalid password'})
+
+
+        cur.execute(
+            """
+                SELECT *
+                FROM administrator
+                WHERE users_user_id = %s        
+            """,
+            (user_id,))
+        is_admin = cur.fetchone()
+        
+        cur.execute(
+            """
+                SELECT *
+                FROM librarian
+                WHERE users_user_id = %s        
+            """,
+            (user_id,))
+        is_librarian = cur.fetchone()
+
+        if not is_admin and not is_librarian:
+            return jsonify({'status': 400,
+                        'errors':f'User not authorized'})
+        
+
+        cur.execute("""
+                    SELECT g.name, COUNT(*) AS borrow_count
+                    FROM loan l JOIN book b ON l.book_isbn = b.isbn
+                                JOIN book_genre bg ON b.isbn = bg.book_isbn
+                                JOIN genre g ON bg.genre_genre_id = g.genre_id
+                    WHERE l.loan_date >= CURRENT_DATE - INTERVAL '12 months' 
+                    GROUP BY g.name
+                    ORDER BY borrow_count DESC
+                    LIMIT %s""", (N,))
+        
+        rows = cur.fetchall()
+        result = []
+        for row in rows:
+            genre, count = row
+            result.append({
+                'genre':genre,
+                'borrow_count':count
+            })
+
+        return jsonify({
+            'status':200,
+            'results': result })      
+    
+    
+    except (Exception,psycopg2.DatabaseError) as e:
+        conn.rollback()
+        return jsonify({'status': 500,
+                        'errors':str(e)
+        })
+    
+    finally:
+            conn.close()
 
 
 
