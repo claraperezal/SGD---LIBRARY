@@ -2,9 +2,15 @@ import pandas as pd
 import psycopg2
 import random
 from datetime import datetime
-from functions import db_connection
 
-
+def db_connection():
+    # NOTE: change the host to "db" if you are running as a Docker container
+    db = psycopg2.connect(user = "gabs",
+                            password = "admin",
+                            host = "localhost", #"db",
+                            port = "5432",
+                            database = "projeto")
+    return db
 
 
 def query(connection, statement, values=None):
@@ -37,7 +43,7 @@ DROP TABLE IF EXISTS book CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 """
 query(conn, drop_tables, None)
-
+print("DROPPED")
 create_tables = """
 CREATE TABLE users (
 	user_id	 INTEGER,
@@ -68,7 +74,7 @@ CREATE TABLE review (
 
 CREATE TABLE book (
 	isbn		 VARCHAR(50),
-	title		 VARCHAR(20) NOT NULL,
+	title		 VARCHAR(50) NOT NULL,
 	description	 VARCHAR(512),
 	num_pages	 INTEGER NOT NULL,
 	num_copies	 INTEGER NOT NULL,
@@ -143,4 +149,25 @@ genres_types = pd.read_csv('csv/genre.csv')
 for row in genres_types.values:
     query(conn, 'INSERT INTO genre (genre_id, name) values(%s,%s)', (row[0], row[1],))
 
+books = pd.read_csv('csv/book.csv')
+for row in books.values:
+    query(
+        conn,
+        'INSERT INTO book (isbn, title, description, num_pages, num_copies, registration_date) '
+        'VALUES (%s, %s, %s, %s, %s, %s)',
+        (row[0], row[1], row[2], int(row[3]), int(row[4]), row[5])
+    )
 
+book_genre=pd.read_csv('csv/book_genre.csv')
+for row in book_genre.values:
+    query(conn, 'INSERT INTO book_genre (book_isbn,genre_genre_id) values(%s,%s)',(row[0], row[1]))
+
+authors=pd.read_csv('csv/author.csv')
+for row in authors.values:
+    query(conn, 'INSERT INTO author (author_id, name) values(%s,%s)',(row[0], row[1]))
+
+author_genre=pd.read_csv('csv/author_genre.csv')
+for row in author_genre.values:
+    query(conn,'INSERT INTO book_author (book_isbn, author_author_id) values(%s,%s)',(row[0], row[1]))
+
+print("DONE")
