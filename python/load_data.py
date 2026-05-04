@@ -70,6 +70,7 @@ print("DROPPED")
 create_tables = """
 CREATE TABLE users (
 	user_id	 INTEGER,
+	name VARCHAR(512) NOT NULL,
 	username VARCHAR(50) NOT NULL,
 	email	 VARCHAR(512) NOT NULL,
 	password VARCHAR(512) NOT NULL,
@@ -195,12 +196,19 @@ for row in book_author.values:
 
 user=pd.read_csv('csv/users.csv')
 for row in user.values:
-    query(conn, 'INSERT INTO users (user_id, username,email,password) values(%s,%s,%s,%s)',(row[0], row[1], row[2], hash_password(row[3])))
+    query(conn, 'INSERT INTO users (user_id,name, username,email,password) values(%s,%s,%s,%s,%s)',(row[0], row[1], row[2], row[3],hash_password(row[4])))
 
 readers=pd.read_csv('csv/readers.csv')
+admin= pd.read_csv('csv/admin.csv')
+librarian= pd.read_csv('csv/librarian.csv')
+
 for row in readers.values:
     query(conn, "INSERT INTO readers (membership_number, users_user_id) values(%s,%s)",(row[0],row[1]))
 
+for row in librarian.values:
+    query(conn, 'INSERT INTO librarian(salary,	users_user_id) values(%s,%s)  ',(int(row[0]), int(row[1])))
+for row in admin.values:
+    query(conn, 'INSERT INTO admin(access_level,users_user_id) values(%s,%s)',(int(row[0]), int(row[1])))
 
 reviews = pd.read_csv('csv/review.csv')
 for row in reviews.values:
