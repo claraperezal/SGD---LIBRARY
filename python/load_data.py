@@ -166,8 +166,8 @@ authors=pd.read_csv('csv/author.csv')
 for row in authors.values:
     query(conn, 'INSERT INTO author (author_id, name) values(%s,%s)',(row[0], row[1]))
 
-author_genre=pd.read_csv('csv/author_genre.csv')
-for row in author_genre.values:
+book_author=pd.read_csv('csv/book_author.csv')
+for row in book_author.values:
     query(conn,'INSERT INTO book_author (book_isbn, author_author_id) values(%s,%s)',(row[0], row[1]))
 
 print("DONE")
