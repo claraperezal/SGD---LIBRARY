@@ -2,6 +2,29 @@ import pandas as pd
 import psycopg2
 import random
 from datetime import datetime
+import bcrypt
+
+
+# --- PART 1: HASHING (For your DB Script) ---
+def hash_password(plain_text_password):
+    # Convert string to bytes
+    password_bytes = plain_text_password.encode('utf-8')
+
+    hashed_password = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
+
+    # Return as string to store in CSV easily
+    return hashed_password.decode('utf-8')
+
+
+def verify_password(plain_text_password, stored_hashed_password):
+    # Convert both to bytes for comparison
+    password_bytes = plain_text_password.encode('utf-8')
+    hashed_bytes = stored_hashed_password.encode('utf-8')
+
+    # bcrypt.checkpw handles the comparison logic safely
+    return bcrypt.checkpw(password_bytes, hashed_bytes)
+
+
 
 def db_connection():
     # NOTE: change the host to "db" if you are running as a Docker container
@@ -47,9 +70,9 @@ print("DROPPED")
 create_tables = """
 CREATE TABLE users (
 	user_id	 INTEGER,
-	username VARCHAR(20) NOT NULL,
-	email	 VARCHAR(50) NOT NULL,
-	password VARCHAR(50) NOT NULL,
+	username VARCHAR(50) NOT NULL,
+	email	 VARCHAR(512) NOT NULL,
+	password VARCHAR(512) NOT NULL,
 	PRIMARY KEY(user_id)
 );
 
@@ -95,7 +118,7 @@ CREATE TABLE librarian (
 );
 
 CREATE TABLE readers (
-	membership_number INTEGER,
+	membership_number VARCHAR(512),
 	users_user_id	 INTEGER,
 	PRIMARY KEY(users_user_id)
 );
@@ -169,5 +192,19 @@ for row in authors.values:
 book_author=pd.read_csv('csv/book_author.csv')
 for row in book_author.values:
     query(conn,'INSERT INTO book_author (book_isbn, author_author_id) values(%s,%s)',(row[0], row[1]))
+
+user=pd.read_csv('csv/users.csv')
+for row in user.values:
+    query(conn, 'INSERT INTO users (user_id, username,email,password) values(%s,%s,%s,%s)',(row[0], row[1], row[2], hash_password(row[3])))
+
+readers=pd.read_csv('csv/readers.csv')
+for row in readers.values:
+    query(conn, "INSERT INTO readers (membership_number, users_user_id) values(%s,%s)",(row[0],row[1]))
+
+
+reviews = pd.read_csv('csv/review.csv')
+for row in reviews.values:
+    query(conn,'INSERT INTO review (review_id, rating, comment, review_date, readers_users_user_id, book_isbn) VALUES (%s,%s,%s,%s,%s,%s)',(row[0], row[1], row[2], row[3], row[4], row[5] ))
+
 
 print("DONE")
