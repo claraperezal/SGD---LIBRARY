@@ -24,11 +24,11 @@ app = Flask(__name__)
 ##########################################################
 def db_connection():
     db = psycopg2.connect(
-        user=os.getenv("gabs"),
-        password=os.getenv("admin"),
-        host=os.getenv("localhost"),
-        port=os.getenv("5432"),
-        database=os.getenv("projeto")
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT"),
+        database=os.getenv("DB_NAME")
     )
     return db
 def hash_password(plain_text_password):
@@ -64,8 +64,6 @@ def hello():
 
 ##########################################################
 ## ENDPOINT 1: Register User (POST)
-## Any person can register as a reader or librarian
-## Administrators are inserted directly into the BD 
 ##########################################################
 
 @app.route('/sgdproj/user', methods=['POST'])
@@ -141,7 +139,7 @@ def register_user():
 
 
 ##########################################################
-## ENDPOINT 2: 
+## ENDPOINT  Add author (POST)
 ##########################################################
 @app.route('/sgdproj/author', methods=['POST'])
 def add_author():
@@ -149,7 +147,7 @@ def add_author():
     payload=request.get_json()
     logger.debug(f'payload:{payload}')
 
-    required_fields = ['username','password','author_name']
+    required_fields = ['username','password','name']
     for field in required_fields:
         if field not in payload:
             return jsonify({'status':400,
@@ -157,7 +155,7 @@ def add_author():
 
     username= payload['username']
     password = payload['password']
-    author = payload['author_name']
+    author = payload['name']
 
 
     conn = db_connection()
@@ -185,7 +183,7 @@ def add_author():
         cur.execute(
             """
                 SELECT *
-                FROM administrator
+                FROM admin
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -195,7 +193,7 @@ def add_author():
                             'errors': f'User is not admin'})
         cur.execute(
             """
-                INSERT INTO author (author_name)             
+                INSERT INTO author (name)             
                 VALUES (%s)      
             """,
             (author,))
@@ -204,10 +202,12 @@ def add_author():
                 'status': 200,
                 'results': author
             })
+    
+       
     except psycopg2.errors.UniqueViolation:
         conn.rollback()
         return jsonify({'status': 400,
-                        'errors': f'Book with this ISBN already exits'
+                        'errors': f'Author already exists'
                         })
 
     except (Exception, psycopg2.DatabaseError) as e:
@@ -228,10 +228,8 @@ def add_author():
 
 
 
-
-
 #########################################################
-## ENDPOINT 3:
+## ENDPOINT 2: Add book (POST)
 #########################################################
 
 @app.route('/sgdproj/book', methods=['POST'])
@@ -287,7 +285,7 @@ def add_book():
         cur.execute(
             """
                 SELECT *
-                FROM administrator
+                FROM admin
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -296,19 +294,21 @@ def add_book():
             return jsonify({'status': 400,
                             'errors': f'User is not admin'})
 
+    
+
         authors = payload['authors']
 
         author_ids = []
         for a in authors:
-            cur.execute("SELECT author_id FROM author WHERE author_name = %s", (a,))
+            cur.execute("SELECT author_id FROM author WHERE name = %s", (a,))
             row = cur.fetchone()
             if not row:
                 return jsonify({'status': 400, 'errors': f'Author not found: {a}'})
             author_ids.append(row[0])
 
         cur.execute("""
-        INSERT INTO book (isbn, title, description, num_pages, num_copies)
-        VALUES (%s,%s,%s,%s,%s)
+        INSERT INTO book (isbn, title, description, num_pages, num_copies, registration_date)
+        VALUES (%s,%s,%s,%s,%s,CURRENT_TIMESTAMP)
         """, (isbn, book_name, book_description, pages, copies))
 
         for aid in author_ids:
@@ -340,7 +340,7 @@ def add_book():
     except psycopg2.errors.UniqueViolation :
         conn.rollback()
         return jsonify({'status': 400,
-                        'errors':f'Book with this ISBN already exits'
+                        'errors':f'Book with this ISBN already exists'
         })
     
     except (Exception,psycopg2.DatabaseError) as e:
@@ -358,11 +358,11 @@ def add_book():
 
 
 ##########################################################
-## ENDPOINT 3: 
+## ENDPOINT 3:  Modify Copies of a Book (POST) 
 ##########################################################
 @app.route('/sgdproj/update_copies', methods=['PUT'])
 def update_copies():
-    logger.info('### POST /sgdproj/update_copies ###')
+    logger.info('### PUT /sgdproj/update_copies ###')
     payload = request.get_json() or {}
     logger.debug(f'payload: {payload}')
 
@@ -402,7 +402,7 @@ def update_copies():
         cur.execute(
             """
                 SELECT *
-                FROM administrator
+                FROM admin
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -432,6 +432,9 @@ def update_copies():
             (isbn,))
     
         borrowed = cur.fetchone()[0]
+        if copies <0:
+            return jsonify({'status': 400,
+                        'errors':'Copies cannot be negative'})
 
         new_copies = copies
         if new_copies < borrowed:
@@ -504,7 +507,6 @@ def list_books_by_genre():
 
         user_id, db_password = user
 
-        user_id, db_password = user
         if not verify_password(password, db_password):
             return jsonify({'status': 400, 'errors': 'Invalid password'})
 
@@ -512,7 +514,7 @@ def list_books_by_genre():
         cur.execute(
             """
                 SELECT *
-                FROM administrator
+                FROM admin
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -565,7 +567,7 @@ def list_books_by_genre():
             result.append({
                 'ISBN': isbn,
                 'book_name': title,
-                'author': authors,
+                'authors': authors,
                 'pages': pages,
                 'copies': copies,
                 'available_copies': available,
@@ -593,11 +595,11 @@ def list_books_by_genre():
 
 
 ##########################################################
-## ENDPOINT 5: 
+## ENDPOINT 5: List Books from Genre (GET)
 ##########################################################
 @app.route('/sgdproj/find_book_by_name', methods=['GET'])
 def find_book_by_name():
-    logger.info('### POST /sgdproj/find_book_by_name ###')
+    logger.info('### GET /sgdproj/find_book_by_name ###')
     payload = request.get_json() or {}
     logger.debug(f'payload: {payload}')
 
@@ -636,7 +638,7 @@ def find_book_by_name():
         cur.execute(
             """
                 SELECT *
-                FROM administrator
+                FROM admin
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -663,14 +665,15 @@ def find_book_by_name():
                 FROM book b JOIN book_genre bg ON b.isbn = bg.book_isbn
                             LEFT JOIN loan l ON b.isbn=l.book_isbn AND l.return_date IS NULL
                 WHERE LOWER(b.title) LIKE LOWER(%s) 
-                GROUP BY b.isbn 
+                GROUP BY b.isbn, b.title, b.num_pages, b.num_copies
+
             """,
             ('%' + book_name +'%',))
         books = cur.fetchall()
 
         result = []
         for book in books:
-            isbn, title, author, pages, copies, available = book
+            isbn, title, pages, copies, available = book
             cur.execute("""
                         SELECT g.name 
                         FROM genre g
@@ -679,10 +682,19 @@ def find_book_by_name():
                         """, (isbn,))
             genres = [g[0] for g in cur.fetchall()]
 
+            cur.execute("""
+                        SELECT a.name 
+                        FROM author a
+                        JOIN book_author ba ON a.author_id = ba.author_author_id
+                        WHERE ba.book_isbn = %s
+                        """, (isbn,))
+            
+            authors = [a[0] for a in cur.fetchall()]
+
             result.append({
                 'ISBN':isbn,
                 'book_name': title,
-                'author':author,
+                'authors':authors,
                 'pages':pages,
                 'copies':copies,
                 'available_copies': available,
@@ -710,11 +722,11 @@ def find_book_by_name():
 
 
 ##########################################################
-## ENDPOINT 6: 
+## ENDPOINT 6: Find Book by ISBN (GET)
 ##########################################################
 @app.route('/sgdproj/find_book_by_isbn', methods=['GET'])
 def find_book_by_isbn():
-    logger.info('### POST /sgdproj/find_book_by_isbn ###')
+    logger.info('### GET /sgdproj/find_book_by_isbn ###')
     payload = request.get_json() or {}
     logger.debug(f'payload: {payload}')
 
@@ -753,7 +765,7 @@ def find_book_by_isbn():
         cur.execute(
             """
                 SELECT *
-                FROM administrator
+                FROM admin
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -780,14 +792,14 @@ def find_book_by_isbn():
                 FROM book b JOIN book_genre bg ON b.isbn = bg.book_isbn
                             LEFT JOIN loan l ON b.isbn=l.book_isbn AND l.return_date IS NULL
                 WHERE b.isbn = %s
-                GROUP BY b.isbn 
+                GROUP BY b.isbn, b.title, b.num_pages, b.num_copies
             """,
             (isbn,))
         books = cur.fetchall()
 
         result = []
         for book in books:
-            isbn, title, author, pages, copies, available = book
+            isbn, title, pages, copies, available = book
             cur.execute("""
                         SELECT g.name 
                         FROM genre g
@@ -796,10 +808,19 @@ def find_book_by_isbn():
                         """, (isbn,))
             genres = [g[0] for g in cur.fetchall()]
 
+            cur.execute("""
+                        SELECT a.name 
+                        FROM author a
+                        JOIN book_author ba ON a.author_id = ba.author_author_id
+                        WHERE ba.book_isbn = %s
+                        """, (isbn,))
+            
+            authors = [a[0] for a in cur.fetchall()]
+
             result.append({
                 'ISBN':isbn,
                 'book_name': title,
-                'author':author,
+                'authors':authors,
                 'pages':pages,
                 'copies':copies,
                 'available_copies': available,
@@ -826,14 +847,12 @@ def find_book_by_isbn():
 
 
 
-
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ##########################################################
-## ENDPOINT 7: 
+## ENDPOINT 7:  Loaned Books (GET) 
 ##########################################################
 @app.route('/sgdproj/loaned_books', methods=['GET'])
 def loaned_books():
-    logger.info('### POST /sgdproj/loaned_books ###')
+    logger.info('### GET /sgdproj/loaned_books ###')
     payload = request.get_json() or {}
     logger.debug(f'payload: {payload}')
 
@@ -871,7 +890,7 @@ def loaned_books():
         cur.execute(
             """
                 SELECT *
-                FROM administrator
+                FROM admin
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -935,11 +954,11 @@ def loaned_books():
 
 
 ##########################################################
-## ENDPOINT 8: 
+## ENDPOINT 8:  Loaned Book (GET) 
 ##########################################################
 @app.route('/sgdproj/loaned_book', methods=['GET'])
 def loaned_book():
-    logger.info('### POST /sgdproj/loaned_book ###')
+    logger.info('### GET /sgdproj/loaned_book ###')
     payload = request.get_json() or {}
     logger.debug(f'payload: {payload}')
 
@@ -978,7 +997,7 @@ def loaned_book():
         cur.execute(
             """
                 SELECT *
-                FROM administrator
+                FROM admin
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -1045,11 +1064,11 @@ def loaned_book():
 
 
 ##########################################################
-## ENDPOINT 9: 
+## ENDPOINT 9: Generate a Report of Top N Loaned Books (GET) 
 ##########################################################
 @app.route('/sgdproj/TopLoanedBooks/<int:N>', methods=['GET'])
 def TopLoanedBooks(N):
-    logger.info('### POST /sgdproj/TopLoanedBooks ###')
+    logger.info('### GET /sgdproj/TopLoanedBooks ###')
     payload = request.get_json() or {}
     logger.debug(f'payload: {payload}')
 
@@ -1087,7 +1106,7 @@ def TopLoanedBooks(N):
         cur.execute(
             """
                 SELECT *
-                FROM administrator
+                FROM admin
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -1130,7 +1149,8 @@ def TopLoanedBooks(N):
                 'last_loaned':last,
                 'rank':rank
             })
-      
+            rank += 1
+
 
         return jsonify({
             'status':200,
@@ -1151,11 +1171,11 @@ def TopLoanedBooks(N):
 
 
 #########################################################
-## ENDPOINT 10: 
+## ENDPOINT 10: Generate a Report of Top N Loaners (GET)
 ##########################################################
 @app.route('/sgdproj/TopLoaners/<int:N>', methods=['GET'])
 def TopLoaners(N):
-    logger.info('### POST /sgdproj/TopLoaners ###')
+    logger.info('### GET /sgdproj/TopLoaners ###')
     payload = request.get_json() or {}
     logger.debug(f'payload: {payload}')
 
@@ -1193,7 +1213,7 @@ def TopLoaners(N):
         cur.execute(
             """
                 SELECT *
-                FROM administrator
+                FROM admin
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -1217,7 +1237,7 @@ def TopLoaners(N):
             """
                 SELECT u.user_id, u.username, COUNT(l.loan_id) AS loaned_books_quantity, MAX(l.loan_date) AS last_loaned_book_date
                 FROM users u JOIN loan l ON u.user_id = l.readers_users_user_id JOIN book b ON l.book_isbn = b.isbn
-                GROUP BY u.user_id
+                GROUP BY u.user_id, u.username
                 ORDER BY loaned_books_quantity DESC, last_loaned_book_date DESC
                 LIMIT %s
             """, (N,))
@@ -1238,12 +1258,13 @@ def TopLoaners(N):
 
             cur.execute(""" 
                         SELECT b.title
-                        FROM loan l JOIN book n ON l.book_isbn = b.isbn
+                        FROM loan l JOIN book b ON l.book_isbn = b.isbn
                         WHERE l.readers_users_user_id = %s
                         ORDER BY l.loan_date DESC
                         LIMIT 1
                         """, (uid,))
 
+            
             last_book  = cur.fetchone()
             last_book = last_book[0] if last_book else None
 
@@ -1253,9 +1274,10 @@ def TopLoaners(N):
                 'loaned_books_quantity':qty,
                 'loaned_books':books,
                 'last_loaned_book':last_book,
-                'last_loaned_book_date':last_date
+                'last_loaned_book_date':last_date,
+                'rank':rank
             })
-      
+            rank += 1
 
         return jsonify({
             'status':200,
@@ -1281,11 +1303,13 @@ def TopLoaners(N):
 
 
 #########################################################
-## ENDPOINT 11: 
+## ENDPOINT 11: Available Books by Genre (GET)
 ##########################################################
 @app.route('/sgdproj/available_books_by_genre', methods=['GET'])
 def available_books_by_genre():
+    logger.info('### GET /sgdproj/available_books_by_genre ###')
     payload = request.get_json() or {}
+    logger.debug(f'payload: {payload}')
     if 'genre_id' not in payload:
             return jsonify({'status': 400,
                             'errors':'Missing genre_id'})
@@ -1298,8 +1322,8 @@ def available_books_by_genre():
     try:
         cur.execute(
             """
-                SELECT b.isbn, b.title, b.description, b.num_copies,
-        b.num_copies - COUNT(l.loan_id) AS available_copies,
+        SELECT b.isbn, b.title, b.description, b.num_copies,
+        b.num_copies - COUNT(DISTINCT l.loan_id) AS available_copies,
         PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY r.rating) AS rating
         FROM book b
         JOIN book_genre bg ON b.isbn = bg.book_isbn
@@ -1307,6 +1331,7 @@ def available_books_by_genre():
         LEFT JOIN review r ON b.isbn = r.book_isbn
         WHERE bg.genre_genre_id = %s
         GROUP BY b.isbn, b.title, b.description, b.num_copies
+        HAVING b.num_copies - COUNT(DISTINCT l.loan_id)>0
             """,
             (genre_id,))
 
@@ -1349,11 +1374,13 @@ def available_books_by_genre():
 
 
 #########################################################
-## ENDPOINT 12: 
+## ENDPOINT 12: Check Book Reviews (GET)  
 ##########################################################
 @app.route('/sgdproj/check_book', methods=['GET'])
 def check_book():
+    logger.info('### GET /sgdproj/check_book ###')
     payload = request.get_json() or {}
+    logger.debug(f'payload: {payload}')
     if 'ISBN' not in payload:
             return jsonify({'status': 400,
                             'errors':'Missing ISBN'})
@@ -1370,12 +1397,17 @@ def check_book():
                 SELECT b.isbn, b.title, AVG(r.rating)
                 FROM book b LEFT JOIN review r ON b.isbn =r.book_isbn
                 WHERE b.isbn = %s
-                GROUP BY b.isbn 
+                GROUP BY b.isbn, b.title
             """,
             (isbn,))
 
             
         row = cur.fetchone()
+        if not row:
+            return jsonify({
+            'status':400,
+            'errors': 'Book does not exist'
+        }) 
         isbn, title, overall_rating = row
 
         cur.execute("""
@@ -1415,36 +1447,46 @@ def check_book():
 
 
 
-
-
-
-### me da error
 #########################################################
-## ENDPOINT 13: 
+## ENDPOINT 13: Borrow Book (POST) 
 ##########################################################
 @app.route('/sgdproj/borrow_book', methods=['POST'])
 def borrow_book():
-    payload = request.get_json() or {} or {}
-    required_fields = ['user_id', 'ISBN']
+    logger.info('### POST /sgdproj/borrow_book ###')
+    payload = request.get_json() or {} 
+    logger.debug(f'payload: {payload}')
+    required_fields = ['username', 'password' 'ISBN']
     for field in required_fields:
         if field not in payload:
                 return jsonify({'status': 400,
                                 'errors':f'Missing required field:{field}'})
 
 
-    user_id = payload['user_id']
+    username = payload['username']
+    password = payload['password']
     isbn = payload['ISBN']
 
     conn = db_connection()
     cur = conn.cursor()
 
     try:
-        cur.execute("SELECT * FROM readers WHERE users_user_id = %s", (user_id,))
+        cur.execute("SELECT user_id, passwor FROM user WHERE username = %s", (username,))
+
+        user = cur.fetchone()
+        if not user:
+            return jsonify({'status': 400,
+                            'errors':'User does not exist'})
         
+        user_id, db_password = user
+        if not verify_password(password, db_password):
+            return jsonify({'status': 400,
+                            'errors':'Invalid password'})
+
+        cur.execute("SELECT * FROM readers WHERE users_user_id = %s", (user_id,))
         if not cur.fetchone():
-            conn.rollback()
             return jsonify({'status': 400,
                             'errors':'User is not a reader'})
+        
         cur.execute(
             """
                 SELECT num_copies
@@ -1454,11 +1496,10 @@ def borrow_book():
             """,
             (isbn,))
 
-            
+       
         book = cur.fetchone()
 
         if not book:
-            conn.rollback()
             return jsonify({'status': 400,
                             'errors':'Book does not exist'})
         total_copies = book[0]
@@ -1472,7 +1513,6 @@ def borrow_book():
 
         active_loans = cur.fetchone()[0]
         if active_loans >= 5:
-            conn.rollback()
             return jsonify({'status': 400,
                             'errors':'User already has 5 borrowed books'})
 
@@ -1496,6 +1536,7 @@ def borrow_book():
                     FROM loan 
                     WHERE book_isbn = %s
                     AND return_date IS NULL
+                    FOR UPDATE
                     """, (isbn,))
         
 
@@ -1529,11 +1570,13 @@ def borrow_book():
 
 
 #########################################################
-## ENDPOINT 14: 
+## ENDPOINT 14: Submit Review (POST) 
 ##########################################################
-@app.route('/sgdproj/submit_review', methods=['POST'])
+@app.route('/sgdproj/report/submit_review', methods=['POST'])
 def submit_review():
+    logger.info('### POST /sgdproj/report/submit_review ###')
     payload = request.get_json() or {}
+    logger.debug(f'payload: {payload}')
     required_fields = ['user_id', 'ISBN', 'rating', 'comment']
     for field in required_fields:
         if field not in payload:
@@ -1559,8 +1602,15 @@ def submit_review():
         if not cur.fetchone():
             conn.rollback()
             return jsonify({'status': 400,
-                            'errors':'User not is a reader'})
+                            'errors':'User is not a reader'})
         
+
+        cur.execute("SELECT * FROM book WHERE isbn = %s ", (isbn,))
+        
+        if not cur.fetchone():
+            conn.rollback()
+            return jsonify({'status': 400,
+                            'errors':'Book does not exist'})        
 
         cur.execute("SELECT * FROM loan WHERE readers_users_user_id = %s AND book_isbn =%s", (user_id,isbn))
         
@@ -1577,9 +1627,9 @@ def submit_review():
             (user_id, isbn))
 
         
-        exsisting = cur.fetchone()
+        existing = cur.fetchone()
 
-        if exsisting:
+        if existing:
             cur.execute(""" 
                         UPDATE review SET rating = %s, comment = %s, review_date = CURRENT_TIMESTAMP
                         WHERE readers_users_user_id = %s AND book_isbn = %s
@@ -1610,11 +1660,13 @@ def submit_review():
 
 
 #########################################################
-## ENDPOINT 15: 
+## ENDPOINT 15: Return Book (POST) 
 ##########################################################
 @app.route('/sgdproj/return_book', methods=['POST'])
 def return_book():
+    logger.info('### POST /sgdproj/return_book ###')
     payload = request.get_json() or {}
+    logger.debug(f'payload: {payload}')
     required_fields = ['user_id', 'ISBN']
     for field in required_fields:
         if field not in payload:
@@ -1632,9 +1684,14 @@ def return_book():
         cur.execute("SELECT * FROM readers WHERE users_user_id = %s", (user_id,))
         
         if not cur.fetchone():
-            conn.rollback()
             return jsonify({'status': 400,
                             'errors':'User is not a reader'})
+        
+        cur.execute("SELECT * FROM book WHERE isbn = %s", (isbn,))
+        
+        if not cur.fetchone():
+            return jsonify({'status': 400,
+                            'errors':'Book does not exist'})
         
 
         cur.execute(""" SELECT loan_id 
@@ -1659,7 +1716,7 @@ def return_book():
     
     
     except (Exception,psycopg2.DatabaseError) as e:
-        conn.rollback()
+    
         return jsonify({'status': 500,
                         'errors':str(e)
         })
@@ -1670,11 +1727,13 @@ def return_book():
 
 
 #########################################################
-## ENDPOINT 16: 
+## ENDPOINT 16: Generate a Report of Top N Borrowed Genres in the Last 12 Months 
 ##########################################################
 @app.route('/sgdproj/report/TopLoanedGenres12Months/<int:N>', methods=['GET'])
 def top_loaned_genres(N):
+    logger.info('### GET /sgdproj/report/TopLoanedGenres12Months ###')
     payload = request.get_json() or {}
+    logger.debug(f'payload: {payload}')
     required_fields = ['username', 'password']
     for field in required_fields:
         if field not in payload:
@@ -1711,7 +1770,7 @@ def top_loaned_genres(N):
         cur.execute(
             """
                 SELECT *
-                FROM administrator
+                FROM admin
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -1732,12 +1791,12 @@ def top_loaned_genres(N):
         
 
         cur.execute("""
-                    SELECT g.name, COUNT(*) AS borrow_count
+                    SELECT g.name, COUNT(DISTINCT l.loan_id) AS borrow_count
                     FROM loan l JOIN book b ON l.book_isbn = b.isbn
                                 JOIN book_genre bg ON b.isbn = bg.book_isbn
                                 JOIN genre g ON bg.genre_genre_id = g.genre_id
                     WHERE l.loan_date >= CURRENT_DATE - INTERVAL '12 months' 
-                    GROUP BY g.name
+                    GROUP BY g.genre_id,g.name
                     ORDER BY borrow_count DESC
                     LIMIT %s""", (N,))
         
@@ -1763,36 +1822,6 @@ def top_loaned_genres(N):
     
     finally:
             conn.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

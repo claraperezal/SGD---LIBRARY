@@ -1,6 +1,8 @@
 -- Drops in case they already exist
 DROP TABLE IF EXISTS review CASCADE;
 DROP TABLE IF EXISTS loan CASCADE;
+DROP TABLE IF EXISTS book_author CASCADE;
+DROP TABLE IF EXISTS author CASCADE;
 DROP TABLE IF EXISTS book_genre CASCADE;
 DROP TABLE IF EXISTS book CASCADE;
 DROP TABLE IF EXISTS genre CASCADE;
@@ -60,7 +62,6 @@ CREATE TABLE genre (
 CREATE TABLE book (
 	isbn			 VARCHAR(50),
 	title			 VARCHAR(255) NOT NULL,
-	author			 VARCHAR(255) NOT NULL,
 	description		 TEXT,
 	num_pages	     INTEGER NOT NULL,
 	num_copies		 INTEGER NOT NULL,
@@ -93,6 +94,27 @@ CREATE TABLE book_genre (
 	CONSTRAINT fk_book_genre_genre
 		FOREIGN KEY(genre_genre_id)
 		REFERENCES genre(genre_id)
+);
+
+CREATE TABLE author(
+	author_id SERIAL,
+	author_name VARCHAR(255) NOT NULL UNIQUE, 
+	PRIMARY KEY(author_id)
+);
+
+CREATE TABLE book_author(
+	book_isbn VARCHAR(50) NOT NULL,
+	author_author_id INTEGER NOT NULL,
+
+	PRIMARY KEY(book_isbn, author_author_id),
+
+	CONSTRAINT fk_book_author_book
+		FOREIGN KEY(book_isbn)
+		REFERENCES book(isbn),
+
+	CONSTRAINT fk_book_author_author
+		FOREIGN KEY(author_author_id)
+		REFERENCES book(author_id)
 );
 
 CREATE TABLE loan (
@@ -151,7 +173,7 @@ WHERE return_date IS NULL;
 
 -- Create administrator
 INSERT INTO users(username, email, password)
-VALUES ('admin', 'adminlibrarya@gmail.com', 'admin123')
+VALUES ('admin', 'adminlibrarya@gmail.com', 'admin123');
 
 INSERT INTO administrator(users_user_id)
 VALUES ((SELECT user_id FROM users WHERE username ='admin'));

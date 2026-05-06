@@ -24,3 +24,7 @@ scripts/logs/*.log
 # Sistema
 .DS_Store
 Thumbs.db
+
+.env
+__pycache__/
+*.pyc
