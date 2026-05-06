@@ -3,6 +3,8 @@ import psycopg2
 import random
 from datetime import datetime
 import bcrypt
+import os
+from dotenv import load_dotenv
 
 
 # --- PART 1: HASHING (For your DB Script) ---
@@ -25,14 +27,14 @@ def verify_password(plain_text_password, stored_hashed_password):
     return bcrypt.checkpw(password_bytes, hashed_bytes)
 
 
-
+load_dotenv()
 def db_connection():
     # NOTE: change the host to "db" if you are running as a Docker container
-    db = psycopg2.connect(user = "gabs",
-                            password = "admin",
-                            host = "localhost", #"db",
-                            port = "5432",
-                            database = "projeto")
+    db = psycopg2.connect(user = os.getenv("DB_USER"),
+                            password = os.getenv("DB_PASSWORD"),
+                            host = os.getenv("DB_HOST"), #"db",
+                            port = os.getenv("DB_PORT"),
+                            database = os.getenv("DB_NAME"))
     return db
 
 
