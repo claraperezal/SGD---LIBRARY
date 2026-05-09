@@ -52,128 +52,175 @@ def query(connection, statement, values=None):
 conn = db_connection()
 
 drop_tables="""
-DROP TABLE IF EXISTS book_genre CASCADE;
-DROP TABLE IF EXISTS book_author CASCADE;
 DROP TABLE IF EXISTS review CASCADE;
 DROP TABLE IF EXISTS loan CASCADE;
-
-DROP TABLE IF EXISTS admin CASCADE;
-DROP TABLE IF EXISTS librarian CASCADE;
-DROP TABLE IF EXISTS readers CASCADE;
-
-DROP TABLE IF EXISTS genre CASCADE;
+DROP TABLE IF EXISTS book_author CASCADE;
 DROP TABLE IF EXISTS author CASCADE;
+DROP TABLE IF EXISTS book_genre CASCADE;
 DROP TABLE IF EXISTS book CASCADE;
-
+DROP TABLE IF EXISTS genre CASCADE;
+DROP TABLE IF EXISTS readers CASCADE;
+DROP TABLE IF EXISTS librarian CASCADE;
+DROP TABLE IF EXISTS administrator CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 """
 query(conn, drop_tables, None)
 print("DROPPED")
 create_tables = """
 CREATE TABLE users (
-	user_id	 INTEGER,
-	name VARCHAR(512) NOT NULL,
+	user_id	 SERIAL,
 	username VARCHAR(50) NOT NULL,
-	email	 VARCHAR(512) NOT NULL,
-	password VARCHAR(512) NOT NULL,
-	PRIMARY KEY(user_id)
+	email	 VARCHAR(100) NOT NULL,
+	password VARCHAR(255) NOT NULL,
+	PRIMARY KEY(user_id),
+	UNIQUE(username),
+	UNIQUE(email)
 );
 
-CREATE TABLE loan (
-	loan_id		 INTEGER,
-	loan_date		 TIMESTAMP NOT NULL,
-	return_date		 TIMESTAMP,
-	readers_users_user_id INTEGER NOT NULL,
-	book_isbn		 VARCHAR(50) NOT NULL,
-	PRIMARY KEY(loan_id)
-);
-
-CREATE TABLE review (
-	review_id		 BIGINT,
-	rating		 INTEGER NOT NULL,
-	comment		 VARCHAR(512),
-	review_date		 TIMESTAMP NOT NULL,
-	readers_users_user_id INTEGER NOT NULL,
-	book_isbn		 VARCHAR(50) NOT NULL,
-	PRIMARY KEY(review_id)
-);
-
-CREATE TABLE book (
-	isbn		 VARCHAR(50),
-	title		 VARCHAR(50) NOT NULL,
-	description	 VARCHAR(512),
-	num_pages	 INTEGER NOT NULL,
-	num_copies	 INTEGER NOT NULL,
-	registration_date TIMESTAMP NOT NULL,
-	PRIMARY KEY(isbn)
-);
-
-CREATE TABLE genre (
-	genre_id INTEGER,
-	name	 VARCHAR(20) NOT NULL,
-	PRIMARY KEY(genre_id)
+CREATE TABLE administrator (
+	users_user_id INTEGER NOT NULL,
+	PRIMARY KEY(users_user_id),
+	CONSTRAINT fk_administrator_user
+	FOREIGN KEY (users_user_id)
+	REFERENCES users(user_id)
+	ON DELETE CASCADE
 );
 
 CREATE TABLE librarian (
-	salary	 INTEGER,
-	users_user_id INTEGER,
-	PRIMARY KEY(users_user_id)
+	users_user_id INTEGER NOT NULL,
+	PRIMARY KEY(users_user_id),
+	CONSTRAINT fk_librarian_user
+	FOREIGN KEY (users_user_id)
+	REFERENCES users(user_id)
+	ON DELETE CASCADE
 );
 
 CREATE TABLE readers (
-	membership_number VARCHAR(512),
-	users_user_id	 INTEGER,
-	PRIMARY KEY(users_user_id)
+	users_user_id INTEGER NOT NULL,
+	PRIMARY KEY(users_user_id),
+	CONSTRAINT fk_readers_user
+	FOREIGN KEY (users_user_id)
+	REFERENCES users(user_id)
+	ON DELETE CASCADE
 );
 
-CREATE TABLE author (
-	author_id BIGINT,
-	name	 VARCHAR(512),
+
+CREATE TABLE genre (
+	genre_id SERIAL,
+	name	 VARCHAR(100) NOT NULL UNIQUE,
+	PRIMARY KEY(genre_id)
+);
+
+
+CREATE TABLE book (
+	isbn			 VARCHAR(50),
+	title			 VARCHAR(255) NOT NULL,
+	description		 TEXT,
+	num_pages	     INTEGER NOT NULL,
+	num_copies		 INTEGER NOT NULL,
+	registration_date		 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	administrator_users_user_id INTEGER,
+	PRIMARY KEY(isbn),
+
+	CONSTRAINT fk_book_administrator
+		FOREIGN KEY (administrator_users_user_id)
+		REFERENCES administrator(users_user_id)
+		ON DELETE SET NULL,
+
+	CONSTRAINT chk_num_pages_positive
+		CHECK (num_pages > 0),
+
+	CONSTRAINT chk_num_copies_non_negative
+		CHECK (num_copies >= 0)
+);
+
+
+CREATE TABLE book_genre (
+	book_isbn	 VARCHAR(50) NOT NULL,
+	genre_genre_id INTEGER NOT NULL,
+	PRIMARY KEY(book_isbn, genre_genre_id),
+
+	CONSTRAINT fk_book_genre_book
+		FOREIGN KEY(book_isbn)
+		REFERENCES book(isbn),
+
+	CONSTRAINT fk_book_genre_genre
+		FOREIGN KEY(genre_genre_id)
+		REFERENCES genre(genre_id)
+);
+
+CREATE TABLE author(
+	author_id SERIAL,
+	author_name VARCHAR(255) NOT NULL UNIQUE, 
 	PRIMARY KEY(author_id)
 );
 
-CREATE TABLE admin (
-	access_level	 SMALLINT,
-	users_user_id INTEGER,
-	PRIMARY KEY(users_user_id)
+CREATE TABLE book_author(
+	book_isbn VARCHAR(50) NOT NULL,
+	author_author_id INTEGER NOT NULL,
+
+	PRIMARY KEY(book_isbn, author_author_id),
+
+	CONSTRAINT fk_book_author_book
+		FOREIGN KEY(book_isbn)
+		REFERENCES book(isbn),
+
+	CONSTRAINT fk_book_author_author
+		FOREIGN KEY(author_author_id)
+		REFERENCES author(author_id)
 );
 
-CREATE TABLE book_author (
-	book_isbn	 VARCHAR(50),
-	author_author_id BIGINT,
-	PRIMARY KEY(book_isbn,author_author_id)
+CREATE TABLE loan (
+	loan_id		     SERIAL,
+	loan_date		 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	return_date		 TIMESTAMP,
+	readers_users_user_id INTEGER NOT NULL,
+	book_isbn		 VARCHAR(50) NOT NULL,
+	PRIMARY KEY(loan_id),
+
+	CONSTRAINT fk_loan_reader
+		FOREIGN KEY(readers_users_user_id)
+		REFERENCES readers(users_user_id),
+
+	CONSTRAINT fk_loan_book
+		FOREIGN KEY(book_isbn)
+		REFERENCES book(isbn),
+
+	CONSTRAINT chk_return_after_loan
+		CHECK (return_date IS NULL OR return_date >= loan_date)
 );
 
-CREATE TABLE book_genre (
-	book_isbn	 VARCHAR(50),
-	genre_genre_id INTEGER,
-	PRIMARY KEY(book_isbn,genre_genre_id)
-);
+CREATE TABLE review(
+	review_id		 BIGSERIAL,
+	rating		 INTEGER NOT NULL,
+	comment		 TEXT,
+	review_date		 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	readers_users_user_id INTEGER NOT NULL,
+	book_isbn		 VARCHAR(50) NOT NULL,
+	PRIMARY KEY(review_id),
 
-ALTER TABLE users ADD UNIQUE (username, email);
-ALTER TABLE users ADD CONSTRAINT Check_email CHECK (email LIKE '%@%.%');
-ALTER TABLE users ADD CONSTRAINT Strong_password CHECK (LENGTH(password) >= 6);
-ALTER TABLE loan ADD CONSTRAINT loan_fk1 FOREIGN KEY (readers_users_user_id) REFERENCES readers(users_user_id);
-ALTER TABLE loan ADD CONSTRAINT loan_fk2 FOREIGN KEY (book_isbn) REFERENCES book(isbn);
-ALTER TABLE review ADD CONSTRAINT review_fk1 FOREIGN KEY (readers_users_user_id) REFERENCES readers(users_user_id);
-ALTER TABLE review ADD CONSTRAINT review_fk2 FOREIGN KEY (book_isbn) REFERENCES book(isbn);
-ALTER TABLE review ADD CONSTRAINT Rating CHECK (rating BETWEEN 0 and 5);
-ALTER TABLE book ADD CONSTRAINT positive_pages CHECK (num_pages > 0);
-ALTER TABLE book ADD CONSTRAINT non_negative_copies CHECK (num_copies >= 0);
-ALTER TABLE genre ADD UNIQUE (name);
-ALTER TABLE librarian ADD CONSTRAINT librarian_fk1 FOREIGN KEY (users_user_id) REFERENCES users(user_id);
-ALTER TABLE readers ADD CONSTRAINT readers_fk1 FOREIGN KEY (users_user_id) REFERENCES users(user_id);
-ALTER TABLE admin ADD CONSTRAINT admin_fk1 FOREIGN KEY (users_user_id) REFERENCES users(user_id);
-ALTER TABLE book_author ADD CONSTRAINT book_author_fk1 FOREIGN KEY (book_isbn) REFERENCES book(isbn);
-ALTER TABLE book_author ADD CONSTRAINT book_author_fk2 FOREIGN KEY (author_author_id) REFERENCES author(author_id);
-ALTER TABLE book_genre ADD CONSTRAINT book_genre_fk1 FOREIGN KEY (book_isbn) REFERENCES book(isbn);
-ALTER TABLE book_genre ADD CONSTRAINT book_genre_fk2 FOREIGN KEY (genre_genre_id) REFERENCES genre(genre_id);
+	CONSTRAINT fk_review_reader
+		FOREIGN KEY (readers_users_user_id)
+		REFERENCES readers(users_user_id),
+
+	CONSTRAINT fk_review_book
+		FOREIGN KEY (book_isbn)
+		REFERENCES book(isbn),
+
+	CONSTRAINT uq_review_reader_book
+		UNIQUE (readers_users_user_id, book_isbn),
+
+	CONSTRAINT chk_rating_range
+		CHECK (rating BETWEEN 1 AND 5)
+		
+);
 """
+
 query(conn, create_tables)
 
 genres_types = pd.read_csv('csv/genre.csv')
 for row in genres_types.values:
-    query(conn, 'INSERT INTO genre (genre_id, name) values(%s,%s)', (row[0], row[1],))
+    query(conn, 'INSERT INTO genre (name) values(%s)', (row[1],))
 
 books = pd.read_csv('csv/book.csv')
 for row in books.values:
@@ -190,7 +237,7 @@ for row in book_genre.values:
 
 authors=pd.read_csv('csv/author.csv')
 for row in authors.values:
-    query(conn, 'INSERT INTO author (author_id, name) values(%s,%s)',(row[0], row[1]))
+    query(conn, 'INSERT INTO author (author_name) values(%s)',(row[1],))
 
 book_author=pd.read_csv('csv/book_author.csv')
 for row in book_author.values:
@@ -198,23 +245,28 @@ for row in book_author.values:
 
 user=pd.read_csv('csv/users.csv')
 for row in user.values:
-    query(conn, 'INSERT INTO users (user_id,name, username,email,password) values(%s,%s,%s,%s,%s)',(row[0], row[1], row[2], row[3],hash_password(row[4])))
+    query(conn, 'INSERT INTO users (username ,email,password) values(%s,%s,%s)',(row[2], row[3],hash_password(row[4])))
+
+laon=pd.read_csv('csv/loan.csv')
+for row in loan.values:
+    query(conn, 'INSERT INTO loan (loan_date, return_date, readers_users_user_id, book_isbn) values(%s,%s,%s,%s)',
+          (row[1], row[2] if pd.notna(row[2]) else None, int(row[3]), row[4]))
 
 readers=pd.read_csv('csv/readers.csv')
 admin= pd.read_csv('csv/admin.csv')
 librarian= pd.read_csv('csv/librarian.csv')
 
 for row in readers.values:
-    query(conn, "INSERT INTO readers (membership_number, users_user_id) values(%s,%s)",(row[0],row[1]))
+    query(conn, "INSERT INTO readers (users_user_id) values(%s)",(row[1],))
 
 for row in librarian.values:
-    query(conn, 'INSERT INTO librarian(salary,	users_user_id) values(%s,%s)  ',(int(row[0]), int(row[1])))
+    query(conn, 'INSERT INTO librarian(users_user_id) values(%s)  ',(int(row[0]), ))
 for row in admin.values:
-    query(conn, 'INSERT INTO admin(access_level,users_user_id) values(%s,%s)',(int(row[0]), int(row[1])))
+    query(conn, 'INSERT INTO administrator(users_user_id) values(%s)',(int(row[1]),))
 
 reviews = pd.read_csv('csv/review.csv')
 for row in reviews.values:
-    query(conn,'INSERT INTO review (review_id, rating, comment, review_date, readers_users_user_id, book_isbn) VALUES (%s,%s,%s,%s,%s,%s)',(row[0], row[1], row[2], row[3], row[4], row[5] ))
+    query(conn,'INSERT INTO review ( rating, comment, review_date, readers_users_user_id, book_isbn) VALUES (%s,%s,%s,%s,%s)',( row[1], row[2], row[3], row[4], row[5] ))
 
 
 print("DONE")

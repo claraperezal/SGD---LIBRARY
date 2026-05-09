@@ -11,6 +11,7 @@ import psycopg2
 import os
 import time
 import bcrypt
+import statistics
 
 
 # Load evironment variable
@@ -18,6 +19,31 @@ load_dotenv()
 
 # Create the Flask application
 app = Flask(__name__) 
+
+# Set up the logging
+logging.basicConfig(filename="logs/log_file.log")
+logger = logging.getLogger('logger')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+
+    # create formatter
+formatter = logging.Formatter('%(asctime)s [%(levelname)s]:  %(message)s',
+                              '%H:%M:%S')
+                              # "%Y-%m-%d %H:%M:%S") # not using DATE to simplify
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
+
+
+
+
+
+
+
+
+
+
 
 ##########################################################
 ## DATABASE CONECTION
@@ -360,7 +386,7 @@ def add_book():
 ##########################################################
 ## ENDPOINT 3:  Modify Copies of a Book (POST) 
 ##########################################################
-@app.route('/sgdproj/update_copies', methods=['PUT'])
+@app.route('/sgdproj/update_copies', methods=['POST'])
 def update_copies():
     logger.info('### PUT /sgdproj/update_copies ###')
     payload = request.get_json() or {}
@@ -1299,9 +1325,6 @@ def TopLoaners(N):
 
 
 
-
-
-
 #########################################################
 ## ENDPOINT 11: Available Books by Genre (GET)
 ##########################################################
@@ -1310,6 +1333,12 @@ def available_books_by_genre():
     logger.info('### GET /sgdproj/available_books_by_genre ###')
     payload = request.get_json() or {}
     logger.debug(f'payload: {payload}')
+    if 'username' not in payload or 'password' not in payload:
+        return jsonify({'status': 400,
+                            'errors':'Missing username or password'})
+    username = payload['username']
+    password = payload['password']
+
     if 'genre_id' not in payload:
             return jsonify({'status': 400,
                             'errors':'Missing genre_id'})
@@ -1322,9 +1351,27 @@ def available_books_by_genre():
     try:
         cur.execute(
             """
+                SELECT user_id, password
+                FROM users
+                WHERE username = %s        
+            """,
+            (username,))
+        user = cur.fetchone()
+
+        if not user:
+            return jsonify({'status': 400,
+                        'errors':f'User does not exist'})
+
+        user_id, db_password = user
+
+        if not verify_password(password, db_password):
+            return jsonify({'status': 400, 'errors': 'Invalid password'})
+
+        cur.execute(
+            """
         SELECT b.isbn, b.title, b.description, b.num_copies,
         b.num_copies - COUNT(DISTINCT l.loan_id) AS available_copies,
-        PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY r.rating) AS rating
+        COALESCE(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY r.rating), 0) AS median_rating
         FROM book b
         JOIN book_genre bg ON b.isbn = bg.book_isbn
         LEFT JOIN loan l ON b.isbn = l.book_isbn AND l.return_date IS NULL
@@ -1332,16 +1379,18 @@ def available_books_by_genre():
         WHERE bg.genre_genre_id = %s
         GROUP BY b.isbn, b.title, b.description, b.num_copies
         HAVING b.num_copies - COUNT(DISTINCT l.loan_id)>0
+        ORDER BY b.title
             """,
             (genre_id,))
 
             
-        rows = cur.fetchall()
+        books = cur.fetchall()
 
         result = []
 
-        for row in rows:
-            isbn, title, desc, copies, available, rating = row
+        for book in books:
+            isbn, title, desc, copies, available, median_ratings = book
+
 
             result.append({
                 'ISBN':isbn,
@@ -1349,7 +1398,7 @@ def available_books_by_genre():
                 'copies':copies,
                 'available_copies':available,
                 'book_description':desc,
-                'rating':rating
+                'rating': float(median_ratings) if median_ratings else 0.0
             })
       
 
@@ -1361,6 +1410,7 @@ def available_books_by_genre():
     
     except (Exception,psycopg2.DatabaseError) as e:
         conn.rollback()
+        logger.error(f'Error in available_book_by_genre:{e}')
         return jsonify({'status': 500,
                         'errors':str(e)
         })
@@ -1381,6 +1431,12 @@ def check_book():
     logger.info('### GET /sgdproj/check_book ###')
     payload = request.get_json() or {}
     logger.debug(f'payload: {payload}')
+    if 'username' not in payload or 'password' not in payload:
+        return jsonify({'status': 400,
+                            'errors':'Missing username or password'})
+    username = payload['username']
+    password = payload['password']
+
     if 'ISBN' not in payload:
             return jsonify({'status': 400,
                             'errors':'Missing ISBN'})
@@ -1391,6 +1447,24 @@ def check_book():
     cur = conn.cursor()
 
     try:
+        cur.execute(
+            """
+                SELECT user_id, password
+                FROM users
+                WHERE username = %s        
+            """,
+            (username,))
+        user = cur.fetchone()
+
+        if not user:
+            return jsonify({'status': 400,
+                        'errors':f'User does not exist'})
+
+        user_id, db_password = user
+
+        if not verify_password(password, db_password):
+            return jsonify({'status': 400, 'errors': 'Invalid password'})
+
 
         cur.execute(
             """
@@ -1455,7 +1529,7 @@ def borrow_book():
     logger.info('### POST /sgdproj/borrow_book ###')
     payload = request.get_json() or {} 
     logger.debug(f'payload: {payload}')
-    required_fields = ['username', 'password' 'ISBN']
+    required_fields = ['username', 'password', 'ISBN']
     for field in required_fields:
         if field not in payload:
                 return jsonify({'status': 400,
@@ -1470,7 +1544,7 @@ def borrow_book():
     cur = conn.cursor()
 
     try:
-        cur.execute("SELECT user_id, passwor FROM user WHERE username = %s", (username,))
+        cur.execute("SELECT user_id, password FROM users WHERE username = %s", (username,))
 
         user = cur.fetchone()
         if not user:
@@ -1535,7 +1609,6 @@ def borrow_book():
                     SELECT COUNT(*) 
                     FROM loan 
                     WHERE book_isbn = %s
-                    AND return_date IS NULL
                     FOR UPDATE
                     """, (isbn,))
         
@@ -1577,14 +1650,15 @@ def submit_review():
     logger.info('### POST /sgdproj/report/submit_review ###')
     payload = request.get_json() or {}
     logger.debug(f'payload: {payload}')
-    required_fields = ['user_id', 'ISBN', 'rating', 'comment']
+    required_fields = ['username', 'password', 'ISBN', 'rating', 'comment']
     for field in required_fields:
         if field not in payload:
                 return jsonify({'status': 400,
                                 'errors':f'Missing required field:{field}'})
 
 
-    user_id = payload['user_id']
+    username = payload['username']
+    password = payload['password']
     isbn = payload['ISBN']
     rating = payload['rating']
     comment = payload['comment']
@@ -1597,6 +1671,24 @@ def submit_review():
     cur = conn.cursor()
 
     try:
+        cur.execute(
+            """
+                SELECT user_id, password
+                FROM users
+                WHERE username = %s        
+            """,
+            (username,))
+        user = cur.fetchone()
+
+        if not user:
+            return jsonify({'status': 400,
+                        'errors':f'User does not exist'})
+
+        user_id, db_password = user
+
+        if not verify_password(password, db_password):
+            return jsonify({'status': 400, 'errors': 'Invalid password'})
+    
         cur.execute("SELECT * FROM readers WHERE users_user_id = %s", (user_id,))
         
         if not cur.fetchone():
@@ -1667,20 +1759,39 @@ def return_book():
     logger.info('### POST /sgdproj/return_book ###')
     payload = request.get_json() or {}
     logger.debug(f'payload: {payload}')
-    required_fields = ['user_id', 'ISBN']
+    required_fields = ['username', 'password', 'ISBN']
     for field in required_fields:
         if field not in payload:
                 return jsonify({'status': 400,
                                 'errors':f'Missing required field:{field}'})
 
 
-    user_id = payload['user_id']
+    username = payload['username']
+    password = payload['password']
     isbn = payload['ISBN']
 
     conn = db_connection()
     cur = conn.cursor()
 
     try:
+        cur.execute(
+            """
+                SELECT user_id, password
+                FROM users
+                WHERE username = %s        
+            """,
+            (username,))
+        user = cur.fetchone()
+
+        if not user:
+            return jsonify({'status': 400,
+                        'errors':f'User does not exist'})
+
+        user_id, db_password = user
+
+        if not verify_password(password, db_password):
+            return jsonify({'status': 400, 'errors': 'Invalid password'})
+        
         cur.execute("SELECT * FROM readers WHERE users_user_id = %s", (user_id,))
         
         if not cur.fetchone():
@@ -1835,22 +1946,6 @@ def top_loaned_genres(N):
 ## MAIN
 ##########################################################
 if __name__ == "__main__":
-
-    # Set up the logging
-    logging.basicConfig(filename="logs/log_file.log")
-    logger = logging.getLogger('logger')
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-
-    # create formatter
-    formatter = logging.Formatter('%(asctime)s [%(levelname)s]:  %(message)s',
-                              '%H:%M:%S')
-                              # "%Y-%m-%d %H:%M:%S") # not using DATE to simplify
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-
     time.sleep(1) # just to let the DB start before this print 
 
 

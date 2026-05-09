@@ -12,8 +12,6 @@ DROP TABLE IF EXISTS administrator CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
 
-
-
 CREATE TABLE users (
 	user_id	 SERIAL,
 	username VARCHAR(50) NOT NULL,
@@ -114,7 +112,7 @@ CREATE TABLE book_author(
 
 	CONSTRAINT fk_book_author_author
 		FOREIGN KEY(author_author_id)
-		REFERENCES book(author_id)
+		REFERENCES author(author_id)
 );
 
 CREATE TABLE loan (
