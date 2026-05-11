@@ -216,7 +216,7 @@ CREATE TABLE review(
 );
 """
 
-query(conn, create_tables)
+query(conn, create_tables, None)
 
 genres_types = pd.read_csv('csv/genre.csv')
 for row in genres_types.values:
@@ -245,28 +245,29 @@ for row in book_author.values:
 
 user=pd.read_csv('csv/users.csv')
 for row in user.values:
-    query(conn, 'INSERT INTO users (username ,email,password) values(%s,%s,%s)',(row[2], row[3],hash_password(row[4])))
-
-laon=pd.read_csv('csv/loan.csv')
-for row in loan.values:
-    query(conn, 'INSERT INTO loan (loan_date, return_date, readers_users_user_id, book_isbn) values(%s,%s,%s,%s)',
-          (row[1], row[2] if pd.notna(row[2]) else None, int(row[3]), row[4]))
+    query(conn, 'INSERT INTO users (username, email, password) values(%s,%s,%s)',(row[1], row[2], hash_password(row[3])))
 
 readers=pd.read_csv('csv/readers.csv')
 admin= pd.read_csv('csv/admin.csv')
 librarian= pd.read_csv('csv/librarian.csv')
 
 for row in readers.values:
-    query(conn, "INSERT INTO readers (users_user_id) values(%s)",(row[1],))
+    query(conn, "INSERT INTO readers (users_user_id) values(%s)",(int(row[0]),))
 
 for row in librarian.values:
     query(conn, 'INSERT INTO librarian(users_user_id) values(%s)  ',(int(row[0]), ))
 for row in admin.values:
-    query(conn, 'INSERT INTO administrator(users_user_id) values(%s)',(int(row[1]),))
+    query(conn, 'INSERT INTO administrator(users_user_id) values(%s)',(int(row[0]),))
+
+loan = pd.read_csv('csv/loan.csv')
+for row in loan.values:
+    query(conn, 
+        'INSERT INTO loan (loan_date, return_date, readers_users_user_id, book_isbn) values(%s,%s,%s,%s)',
+        (row[1], row[2] if pd.notna(row[2]) and row[2] != '' else None, int(row[3]), row[4]))
 
 reviews = pd.read_csv('csv/review.csv')
 for row in reviews.values:
-    query(conn,'INSERT INTO review ( rating, comment, review_date, readers_users_user_id, book_isbn) VALUES (%s,%s,%s,%s,%s)',( row[1], row[2], row[3], row[4], row[5] ))
+    query(conn,'INSERT INTO review ( rating, comment, review_date, readers_users_user_id, book_isbn) VALUES (%s,%s,%s,%s,%s)',( row[0], row[1], row[2], row[3], row[4] ))
 
 
 print("DONE")

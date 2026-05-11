@@ -37,14 +37,6 @@ logger.addHandler(ch)
 
 
 
-
-
-
-
-
-
-
-
 ##########################################################
 ## DATABASE CONECTION
 ##########################################################
@@ -98,13 +90,12 @@ def register_user():
     payload = request.get_json() or {}
     logger.debug(f'payload: {payload}')
 
-    required_fields = ['username','name', 'email', 'password', 'role']
+    required_fields = ['username', 'email', 'password', 'role']
     for field in required_fields:
         if field not in payload:
             return jsonify({'status': 400,
                             'errors':f'missing required field: {field}'})
     username = payload['username']
-    name= payload['name']
     email = payload['email']
     password = hash_password(payload['password'])
     role = payload['role'].lower()
@@ -119,11 +110,11 @@ def register_user():
     try:
         cur.execute(
             """
-                INSERT INTO users (username, name, email, password)
-                VALUES (%s,%s, %s, %s)
+                INSERT INTO users (username, email, password)
+                VALUES (%s,%s, %s)
                 RETURNING user_id           
             """,
-            (username, name,email, password
+            (username,email, password
              )
         )
         new_user_id = cur.fetchone()[0]
@@ -209,7 +200,7 @@ def add_author():
         cur.execute(
             """
                 SELECT *
-                FROM admin
+                FROM administrator
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -219,7 +210,7 @@ def add_author():
                             'errors': f'User is not admin'})
         cur.execute(
             """
-                INSERT INTO author (name)             
+                INSERT INTO author (author_name)             
                 VALUES (%s)      
             """,
             (author,))
@@ -245,12 +236,6 @@ def add_author():
     finally:
         if conn is not None:
             conn.close()
-
-
-
-
-
-
 
 
 
@@ -311,7 +296,7 @@ def add_book():
         cur.execute(
             """
                 SELECT *
-                FROM admin
+                FROM administrator
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -326,7 +311,7 @@ def add_book():
 
         author_ids = []
         for a in authors:
-            cur.execute("SELECT author_id FROM author WHERE name = %s", (a,))
+            cur.execute("SELECT author_id FROM author WHERE author_name = %s", (a,))
             row = cur.fetchone()
             if not row:
                 return jsonify({'status': 400, 'errors': f'Author not found: {a}'})
@@ -428,7 +413,7 @@ def update_copies():
         cur.execute(
             """
                 SELECT *
-                FROM admin
+                FROM administrator
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -497,7 +482,7 @@ def update_copies():
 
 
 ##########################################################
-## ENDPOINT 4: 
+## ENDPOINT 4:  List Books from Genre (GET)
 ##########################################################
 @app.route('/sgdproj/list_books_by_genre', methods=['GET'])
 def list_books_by_genre():
@@ -540,7 +525,7 @@ def list_books_by_genre():
         cur.execute(
             """
                 SELECT *
-                FROM admin
+                FROM administrator
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -583,7 +568,7 @@ def list_books_by_genre():
             genres = [g[0] for g in cur.fetchall()]
 
             cur.execute("""
-                            SELECT a.name
+                            SELECT a.author_name               
                             FROM author a
                             JOIN book_author ba ON a.author_id = ba.author_author_id
                             WHERE ba.book_isbn = %s
@@ -664,7 +649,7 @@ def find_book_by_name():
         cur.execute(
             """
                 SELECT *
-                FROM admin
+                FROM administrator
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -709,7 +694,7 @@ def find_book_by_name():
             genres = [g[0] for g in cur.fetchall()]
 
             cur.execute("""
-                        SELECT a.name 
+                        SELECT a.author_name                
                         FROM author a
                         JOIN book_author ba ON a.author_id = ba.author_author_id
                         WHERE ba.book_isbn = %s
@@ -791,7 +776,7 @@ def find_book_by_isbn():
         cur.execute(
             """
                 SELECT *
-                FROM admin
+                FROM administrator
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -835,7 +820,7 @@ def find_book_by_isbn():
             genres = [g[0] for g in cur.fetchall()]
 
             cur.execute("""
-                        SELECT a.name 
+                        SELECT a.author_name                
                         FROM author a
                         JOIN book_author ba ON a.author_id = ba.author_author_id
                         WHERE ba.book_isbn = %s
@@ -916,7 +901,7 @@ def loaned_books():
         cur.execute(
             """
                 SELECT *
-                FROM admin
+                FROM administrator
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -1023,7 +1008,7 @@ def loaned_book():
         cur.execute(
             """
                 SELECT *
-                FROM admin
+                FROM administrator
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -1132,7 +1117,7 @@ def TopLoanedBooks(N):
         cur.execute(
             """
                 SELECT *
-                FROM admin
+                FROM administrator
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -1239,7 +1224,7 @@ def TopLoaners(N):
         cur.execute(
             """
                 SELECT *
-                FROM admin
+                FROM administrator
                 WHERE users_user_id = %s        
             """,
             (user_id,))
@@ -1468,7 +1453,7 @@ def check_book():
 
         cur.execute(
             """
-                SELECT b.isbn, b.title, AVG(r.rating)
+                SELECT b.isbn, b.title, COALESCE(AVG(r.rating), 0)
                 FROM book b LEFT JOIN review r ON b.isbn =r.book_isbn
                 WHERE b.isbn = %s
                 GROUP BY b.isbn, b.title
@@ -1566,7 +1551,7 @@ def borrow_book():
                 SELECT num_copies
                 FROM book 
                 WHERE isbn = %s
-                FOR UPDATE 
+                FOR UPDATE
             """,
             (isbn,))
 
@@ -1606,14 +1591,17 @@ def borrow_book():
 
         
         cur.execute("""
-                    SELECT COUNT(*) 
+                    SELECT loan_id
                     FROM loan 
                     WHERE book_isbn = %s
+                    AND return_date IS NULL
                     FOR UPDATE
                     """, (isbn,))
         
 
-        borrowed = cur.fetchone()[0]
+        row = cur.fetchall()
+        borrowed = len(row)
+         
         if borrowed >= total_copies:
             conn.rollback()
             return jsonify({'status': 400,
@@ -1881,7 +1869,7 @@ def top_loaned_genres(N):
         cur.execute(
             """
                 SELECT *
-                FROM admin
+                FROM administrator
                 WHERE users_user_id = %s        
             """,
             (user_id,))

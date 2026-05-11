@@ -1,151 +1,201 @@
-author_id,name
-1,Ashley Rivera
-2,Lisa Taylor
-3,George Nelson
-4,William Hall
-5,Donna Brown
-6,Betty White
-7,Betty Nguyen
-8,Thomas Roberts
-9,Mark Thompson
-10,Mary Jackson
-11,Karen Rodriguez
-12,Joshua Young
-13,Patricia Flores
-14,Linda Lewis
-15,Christopher Sanchez
-16,Robert Moore
-17,Mark Anderson
-18,Mary Martinez
-19,Anthony Roberts
-20,Steven Lopez
-21,Lisa Jones
-22,Nancy Anderson
-23,Christopher Robinson
-24,Charles Torres
-25,Emily Scott
-26,Thomas Green
-27,Kimberly Thomas
-28,Sarah Hernandez
-29,Brian Nguyen
-30,Lisa Robinson
-31,Jessica Brown
-32,James Jones
-33,Christopher Hill
-34,Nancy Garcia
-35,Mary Nguyen
-36,Deborah Martinez
-37,Nancy Moore
-38,Kevin Nguyen
-39,Deborah Martin
-40,Deborah Perez
-41,Charles Wilson
-42,Jessica Lewis
-43,Steven Wright
-44,Thomas Hernandez
-45,Steven Lee
-46,Timothy Harris
-47,Andrew Roberts
-48,Linda Jones
-49,Betty Jones
-50,Charles Davis
-51,Susan Williams
-52,Elizabeth Green
-53,Andrew Clark
-54,Daniel Gonzalez
-55,Timothy Nguyen
-56,Elizabeth Allen
-57,Nancy Williams
-58,Barbara Lee
-59,Ashley Harris
-60,John Roberts
-61,Barbara King
-62,George Davis
-63,Mary Sanchez
-64,Amanda Harris
-65,Linda Carter
-66,Christopher Harris
-67,Sarah Nelson
-68,Joseph Torres
-69,Andrew Miller
-70,George Jones
-71,Matthew Nelson
-72,Deborah Williams
-73,Brian Torres
-74,Sandra Mitchell
-75,Michael Hernandez
-76,Thomas King
-77,Karen Gonzalez
-78,Kenneth White
-79,Christopher Nelson
-80,Ashley Young
-81,Melissa Taylor
-82,Jessica Sanchez
-83,Jennifer White
-84,Paul Green
-85,Margaret Green
-86,Linda Johnson
-87,Susan Davis
-88,Donald Flores
-89,Patricia Moore
-90,Paul Johnson
-91,Emily Torres
-92,Steven Rivera
-93,Christopher Perez
-94,Joseph Green
-95,Anthony Green
-96,Sarah Jones
-97,Jessica Adams
-98,Donald Scott
-99,Donna Garcia
-100,Daniel Baker
-101,Robert Rivera
-102,Richard Brown
-103,David Rivera
-104,William Miller
-105,Susan Moore
-106,Susan White
-107,Robert Anderson
-108,Deborah Torres
-109,Joseph Scott
-110,Timothy Jackson
-111,Sandra Moore
-112,Emily Nguyen
-113,Amanda Davis
-114,Michael Torres
-115,Amanda Lopez
-116,Deborah Rodriguez
-117,Timothy Lewis
-118,Brian Scott
-119,Emily King
-120,Susan Campbell
-121,Nancy Miller
-122,Betty Thomas
-123,Emily Robinson
-124,Amanda Hernandez
-125,Christopher Gonzalez
-126,Sarah Lopez
-127,Christopher Torres
-128,James White
-129,Daniel Carter
-130,Margaret Martinez
-131,Joshua Carter
-132,Susan Rodriguez
-133,Carol White
-134,Patricia Carter
-135,Sarah Rivera
-136,Joshua Mitchell
-137,Mary Hill
-138,John Miller
-139,Jessica Hernandez
-140,Michelle Scott
-141,Margaret Hall
-142,Daniel White
-143,Richard Gonzalez
-144,Timothy Taylor
-145,Linda Moore
-146,Carol Jackson
-147,Kenneth Miller
-148,Andrew Wright
-149,Joshua Adams
-150,Christopher Hall
+author_id,author_name
+1,Dr. Kyle Hinton
+2,Christopher Davis
+3,Artur Fernandes
+4,Liliana Galindo Sierra
+5,Jéssica Silva
+6,Selena Moreno
+7,Grégoire Letellier
+8,Fredo Gualtieri
+9,Monique Diaz de Jacquot
+10,Stefani Garobbio-Ossola
+11,Stacy Hudson
+12,Patricia Payne
+13,Arthur Hogan
+14,Albano Alcántara Castejón
+15,Nicolò Frescobaldi
+16,Cynthia Campbell
+17,Nelson Moura
+18,Olga Innocenti
+19,Gilberto Giolitti
+20,Clarisa Morante Alberdi
+21,Gilbert Dupré
+22,Heraclio Ibarra Segura
+23,Richard Barnes
+24,Nuno Neto
+25,Soraia Costa
+26,Joe Shaffer
+27,Vasco Cruz
+28,Saturnina Pascual
+29,Jonatan Esparza-Huguet
+30,William Cunningham
+31,Cristiano Costa
+32,Sig.ra Clelia Cristoforetti
+33,Alfred Michaud
+34,Melissa Turchi
+35,Nicanor Lalo Benavent Polo
+36,Rodolfo Revilla
+37,Susanita Cabezas Gil
+38,Lupe Martorell Cobo
+39,Hugues Godard de Fontaine
+40,Erin Gonzales
+41,Marciano Medina Alarcón
+42,Fábio Gaspar
+43,Maggie Marty
+44,Viviana Contreras Manuel
+45,Soraia Ramos
+46,Lalo Jacinto Bonilla Quevedo
+47,Debbie Freeman
+48,Valérie Alves-Breton
+49,Sarah Butler
+50,David Toussaint-Bruneau
+51,Begoña Amorós Castellanos
+52,Amarilis Murcia
+53,Louis du Pires
+54,Daniela Paiva-Ribeiro
+55,Leonor Mendes
+56,Bárbara Rosenda Miró Ortega
+57,Jonatan Sanmiguel Bayona
+58,Jessica Moss
+59,Noemí Isa Pou Arregui
+60,Bernadette Langlois-Bigot
+61,Salomé-Laura Cruz
+62,Mélanie Araújo
+63,Rebecca Terry
+64,Ivo do Martins
+65,Ema de Faria
+66,Cecilia Donatoni
+67,Nath Briand
+68,Caterina Agostini
+69,Denis Vieira
+70,Jeremy Guzman
+71,Andrew Fields
+72,Teresa do Loureiro
+73,Lorenzo Quesada
+74,Rita Piacentini
+75,Gustavo Barbosa-Carvalho
+76,Michael Wilson
+77,Jeffrey Howard Jr.
+78,Annamaria Sabatini
+79,Philippine Torres
+80,Maria do Guerreiro
+81,Mafalda Cunha
+82,Franck Allain du Cordier
+83,Orazio Viola-Garibaldi
+84,Fabrizio Tarantino-Gemito
+85,Crystal Mercado
+86,Hortense Lagarde
+87,Maurilio Murialdo-Ginesio
+88,Estefanía Ríos Vila
+89,Rafael Monteiro
+90,Whitney Alexander
+91,Richard Weiss
+92,Christopher Meyer
+93,Dott. Donatella Pacillo
+94,Uberto Botta
+95,Rico Linares Ropero
+96,Patrícia Rocha-Amorim
+97,Nicolas-Roger Dias
+98,Jonathan Fischer
+99,Anita-Bruna Miranda
+100,Anita Rubbia
+101,Mauro Amaral-Simões
+102,Kayla Hill
+103,Gil Campos
+104,Mario Lovato-Lucciano
+105,Erica Fonseca
+106,Gabrielle Pineau
+107,Pilar Cardoso
+108,Sabine Roche
+109,Vera Antunes
+110,Paulina Verdi
+111,Marina del Aguirre
+112,Paco Carro
+113,Gérard Carpentier
+114,Zoé Dupont-Hernandez
+115,Itziar Ibañez Mariscal
+116,Sig. Enzo Pisani
+117,Gianmarco Lancisi
+118,Filipe Azevedo
+119,Isaac Léger
+120,Toni Beccaria
+121,Robert Thompson
+122,Eduarda Sousa
+123,Lorena Pereira
+124,Esther Pulido Garcés
+125,Pauline Collet
+126,Viridiana Zanzi-Gritti
+127,Clelia Rosselli-Squarcione
+128,Sandro Tavares
+129,Claudine Guyon
+130,Gabrielle Vidal
+131,Daniel Humbert
+132,Lucho de Carrión
+133,Monica Trombetta
+134,Lucas Reynaud
+135,Adriana Moles
+136,Bryan Lane
+137,Diogo Sá
+138,Gioffre Boccaccio
+139,Venancio Troisi
+140,Diana Vaz
+141,Sandra Green
+142,Ismael Zamora-Diaz
+143,Luís Cardoso
+144,Omar del Aguiló
+145,Ariel Jáuregui Tirado
+146,Carmela Sabater Paz
+147,Crystal Richards
+148,Anna Miles
+149,Conrado de Manzanares
+150,Charlotte Pons
+151,Sig. Rembrandt Moretti
+152,Mrs. Christine Evans
+153,Jean Gilbert-Chartier
+154,Eugène Thibault
+155,Romeo Toso
+156,Victoria Salcedo Uribe
+157,Céline-Olivie Duval
+158,Rémy Gautier
+159,Célina Georges de la Hamel
+160,Tania Catalá Diez
+161,Gema Galván-Español
+162,Diana Allen
+163,Andrew Black
+164,Frédéric Martineau du Chartier
+165,Teodosio Reig
+166,Ofelia Bayona Sebastián
+167,Sig. Giacomo Casagrande
+168,Suzanne Lambert
+169,Patrick Mullins
+170,Marcantonio Marrone
+171,Régulo Vendrell-Ojeda
+172,Rose Hill
+173,Joséphine Faure
+174,Jovita Casanovas Bas
+175,Margot Besson de Dias
+176,Melina Gadda
+177,Geronimo Mazzini-Cilea
+178,Sig. Massimo Iadanza
+179,Santiago Amorim
+180,Margaud Imbert
+181,Teresa Chigi
+182,Concetta Morandi
+183,Laure Garnier
+184,Massimiliano Turchi
+185,Adrien Guillot
+186,Tere Amaya-Ropero
+187,Nath-Hortense Guichard
+188,Nicolas Gérard-Bernard
+189,Laura-Pilar Machado
+190,Asdrubal Cabo Pizarro
+191,Yara Macedo
+192,Lucrezia Morricone
+193,Madeleine Foucher
+194,Pepito Velázquez Castejón
+195,Leonor Amaral-Andrade
+196,Anastasie-Victoire Hamel
+197,Kimberly Durham
+198,Edgar Carvalho
+199,Nuria Pozo Aller
+200,Leonor Vicente
