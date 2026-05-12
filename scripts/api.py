@@ -1,7 +1,7 @@
 ## ===================================================
 ## LIBRARY MANAGEMENT SYSTEM
 ## CLARA PEREZ ALONSO
-## GABRIEL
+## GABRIEL FURTADO
 ## ===================================================
 
 from flask import Flask, jsonify, request
@@ -369,9 +369,9 @@ def add_book():
 
 
 ##########################################################
-## ENDPOINT 3:  Modify Copies of a Book (POST) 
+## ENDPOINT 3:  Modify Copies of a Book (PUT) 
 ##########################################################
-@app.route('/sgdproj/update_copies', methods=['POST'])
+@app.route('/sgdproj/update_copies', methods=['PUT'])
 def update_copies():
     logger.info('### PUT /sgdproj/update_copies ###')
     payload = request.get_json() or {}
