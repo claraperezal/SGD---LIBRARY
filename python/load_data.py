@@ -29,15 +29,14 @@ def verify_password(plain_text_password, stored_hashed_password):
 
 load_dotenv()
 def db_connection():
-    # NOTE: change the host to "db" if you are running as a Docker container
-    db = psycopg2.connect(user = os.getenv("DB_USER"),
-                            password = os.getenv("DB_PASSWORD"),
-                            host = os.getenv("DB_HOST"), #"db",
-                            port = os.getenv("DB_PORT"),
-                            database = os.getenv("DB_NAME"))
+    db = psycopg2.connect(
+        user="gabs",
+        password="admin",
+        host="localhost",
+        port=5432,
+        database="projeto"
+    )
     return db
-
-
 def query(connection, statement, values=None):
     cur = connection.cursor()
     try:
