@@ -318,9 +318,9 @@ def add_book():
             author_ids.append(row[0])
 
         cur.execute("""
-        INSERT INTO book (isbn, title, description, num_pages, num_copies, registration_date)
-        VALUES (%s,%s,%s,%s,%s,CURRENT_TIMESTAMP)
-        """, (isbn, book_name, book_description, pages, copies))
+        INSERT INTO book (isbn, title, description, num_pages, num_copies, registration_date, administrator_user_user_id)
+        VALUES (%s,%s,%s,%s,%s,CURRENT_TIMESTAMP, %s)
+        """, (isbn, book_name, book_description, pages, copies, user_id))
 
         for aid in author_ids:
             cur.execute("""

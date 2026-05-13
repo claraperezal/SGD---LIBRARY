@@ -85,6 +85,7 @@ CREATE TABLE administrator (
 	ON DELETE CASCADE
 );
 
+
 CREATE TABLE librarian (
 	users_user_id INTEGER NOT NULL,
 	PRIMARY KEY(users_user_id),
@@ -109,7 +110,6 @@ CREATE TABLE genre (
 	name	 VARCHAR(100) NOT NULL UNIQUE,
 	PRIMARY KEY(genre_id)
 );
-
 
 CREATE TABLE book (
 	isbn			 VARCHAR(50),
@@ -232,7 +232,7 @@ for row in books.values:
 
 book_genre=pd.read_csv('csv/book_genre.csv')
 for row in book_genre.values:
-    query(conn, 'INSERT INTO book_genre (book_isbn,genre_genre_id) values(%s,%s)',(row[0], row[1]))
+    query(conn, 'INSERT INTO book_genre (book_isbn, genre_genre_id) values(%s,%s)',(row[0], row[1]))
 
 authors=pd.read_csv('csv/author.csv')
 for row in authors.values:
