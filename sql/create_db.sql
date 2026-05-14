@@ -31,6 +31,7 @@ CREATE TABLE administrator (
 	ON DELETE CASCADE
 );
 
+
 CREATE TABLE librarian (
 	users_user_id INTEGER NOT NULL,
 	PRIMARY KEY(users_user_id),
@@ -55,7 +56,6 @@ CREATE TABLE genre (
 	name	 VARCHAR(100) NOT NULL UNIQUE,
 	PRIMARY KEY(genre_id)
 );
-
 
 CREATE TABLE book (
 	isbn			 VARCHAR(50),
@@ -168,10 +168,3 @@ CREATE INDEX idx_user_loans
 ON loan (readers_users_user_id)
 WHERE return_date IS NULL;
 
-
--- Create administrator
-INSERT INTO users(username, email, password)
-VALUES ('admin', 'adminlibrarya@gmail.com', 'admin123');
-
-INSERT INTO administrator(users_user_id)
-VALUES ((SELECT user_id FROM users WHERE username ='admin'));

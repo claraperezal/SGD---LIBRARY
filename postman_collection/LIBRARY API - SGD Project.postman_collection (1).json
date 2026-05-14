@@ -1,0 +1,746 @@
+{
+  "info": {
+    "_postman_id": "e0ba632c-4c19-4f99-ac9e-b339e960ed75",
+    "name": "LIBRARY API - SGD Project",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54048534",
+    "_collection_link": "https://go.postman.co/collection/54048534-e0ba632c-4c19-4f99-ac9e-b339e960ed75?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "1. Register User (POST)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"newreader1\",\r\n    \"email\": \"newreader1@email.com\",\r\n    \"password\": \"password123\",\r\n    \"role\": \"reader\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/user",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "user"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Add Book (POST)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"danielpotter\",\r\n    \"password\": \"_4l!LZlsKm\",\r\n    \"ISBN\": \"978-0-00-111222-3\",\r\n    \"book_name\": \"Test Book\",\r\n    \"authors\": [\"Christopher Davis\"],\r\n    \"book_description\": \"A test book description\",\r\n    \"pages\": 300,\r\n    \"copies\": 5,\r\n    \"genres\": [\"Fantasy\"]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/book",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "book"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. Modify Copies of a Book (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"danielpotter\",\r\n    \"password\": \"_4l!LZlsKm\",\r\n    \"ISBN\": \"978-0-00-111222-3\",\r\n    \"copies\": 10\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/update_copies",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "update_copies"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. List Books from Genre (GET)",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"danielpotter\",\r\n    \"password\": \"_4l!LZlsKm\",\r\n    \"genre_id\": 1\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/list_books_by_genre",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "list_books_by_genre"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5.  Find Book by Name (GET)",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"danielpotter\",\r\n    \"password\": \"_4l!LZlsKm\",\r\n    \"book_name\": \"Test Book\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/find_book_by_name",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "find_book_by_name"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6. Find Book by ISBN (GET)",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"danielpotter\",\r\n    \"password\": \"_4l!LZlsKm\",\r\n    \"ISBN\": \"978-0-00-111222-3\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/find_book_by_isbn",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "find_book_by_isbn"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "7. Loaned Books (GET)",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"danielpotter\",\r\n    \"password\": \"_4l!LZlsKm\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/loaned_books",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "loaned_books"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "8. Loaned Book (GET)",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"danielpotter\",\r\n    \"password\": \"_4l!LZlsKm\",\r\n    \"ISBN\": \"979-0-443-435239-8\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/loaned_book",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "loaned_book"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "9. Generate a Report of Top N Loaned Books (GET)",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"danielpotter\",\r\n    \"password\": \"_4l!LZlsKm\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/TopLoanedBooks/5",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "TopLoanedBooks",
+            "5"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "10. Generate a Report of Top N Loaners (GET)",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"danielpotter\",\r\n    \"password\": \"_4l!LZlsKm\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/TopLoaners/5",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "TopLoaners",
+            "5"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "11. Available Books by Genre (GET)",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"danielpotter\",\r\n    \"password\": \"_4l!LZlsKm\",\r\n    \"genre_id\": 1\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/available_books_by_genre",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "available_books_by_genre"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "12. Check Book Reviews (GET)",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"danielpotter\",\r\n    \"password\": \"_4l!LZlsKm\",\r\n    \"ISBN\": \"979-0-146-772612-9\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/check_book",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "check_book"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "13. Borrow Book (POST)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"garrett.brewer\",\r\n    \"password\": \"7b8SqN+l^Z\",\r\n    \"ISBN\": \"978-0-00-111222-3\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/borrow_book",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "borrow_book"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "14. Submit Review (POST)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"amberowens\",\r\n    \"password\": \"QMA1Ekr4(D\",\r\n    \"user_id\": 12,\r\n    \"ISBN\": \"979-0-617-697935-1\",\r\n    \"rating\": 5,\r\n    \"comment\": \"Amazing book.\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/report/submit_review",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "report",
+            "submit_review"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "15. Return Book (POST)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"darrylconner\",\r\n    \"password\": \"7_846Ghq5+\",\r\n    \"ISBN\": \"979-0-122-674559-6\",\r\n    \"rating\": 5,\r\n    \"comment\": \"Amazing book.\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/return_book",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "return_book"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "16. Generate a Report of Top N Borrowed Genres in the Last 12 Months",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"danielpotter\",\r\n    \"password\": \"_4l!LZlsKm\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/report/TopLoanedGenres12Months/5",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "report",
+            "TopLoanedGenres12Months",
+            "5"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add Author (POST)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"danielpotter\",\r\n    \"password\": \"_4l!LZlsKm\",\r\n    \"name\": \"J. K. Rowling\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/author",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "author"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ERROR - 13. Borrow Book (POST)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"ksmith\",\r\n    \"password\": \"u3B*aM+y^l\",\r\n    \"ISBN\": \"978-0-00-111222-3\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/borrow_book",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "borrow_book"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ERROR - 14. Submit Review (POST)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"masonpatterson\",\r\n    \"password\": \"dgBAKzgr@8\",\r\n    \"ISBN\": \"979-0-146-772612-9\",\r\n    \"rating\": 5,\r\n    \"comment\": \"Amazing book.\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/report/submit_review",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "report",
+            "submit_review"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ERROR - 15. Return Book (POST)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"masonpatterson\",\r\n    \"password\": \"dgBAKzgr@8\",\r\n    \"ISBN\": \"979-0-617-697935-1\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/return_book",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "return_book"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ERROR - Add Author (POST)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"masonpatterson\",\r\n    \"password\": \"dgBAKzgr@8\",\r\n    \"name\": \"Stephen King\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/author",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "author"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ERROR2 - 13. Borrow Book (POST)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"ksmith\",\r\n    \"password\": \"u3B*aM+y^l\",\r\n    \"ISBN\": \"000-0-00-000000-0\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/borrow_book",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "borrow_book"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ERROR - 1. Register User (POST)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"nuevousuario99\",\r\n    \"email\": \"ksmith@icloud.com\",\r\n    \"password\": \"password123\",\r\n    \"role\": \"reader\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/user",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "user"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ERROR - 4. List Books from Genre (GET)",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"ksmith\",\r\n    \"password\": \"u3B*aM+y^l\",\r\n    \"genre_id\": 1\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/sgdproj/list_books_by_genre",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "sgdproj",
+            "list_books_by_genre"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
