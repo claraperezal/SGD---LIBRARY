@@ -547,9 +547,8 @@ def list_books_by_genre():
 
         cur.execute("""
             SELECT b.isbn, b.title, b.num_pages, b.num_copies,
-                   COALESCE(b.num_copies - COUNT(l.loan_id), b.num_copies) AS available_copies
-            FROM book b
-            JOIN book_genre bg ON b.isbn = bg.book_isbn
+                COALESCE(b.num_copies - COUNT(DISTINCT l.loan_id), b.num_copies) AS available_copies              
+            FROM book b JOIN book_genre bg ON b.isbn = bg.book_isbn
             LEFT JOIN loan l ON b.isbn = l.book_isbn AND l.return_date IS NULL
             WHERE bg.genre_genre_id = %s
             GROUP BY b.isbn, b.title, b.num_pages, b.num_copies
@@ -672,7 +671,7 @@ def find_book_by_name():
         cur.execute(
             """
                 SELECT b.isbn, b.title, b.num_pages, b.num_copies,
-                    COALESCE(b.num_copies - COUNT(l.loan_id), b.num_copies) AS available_copies
+                    COALESCE(b.num_copies - COUNT(DISTINCT l.loan_id), b.num_copies) AS available_copies
                 FROM book b JOIN book_genre bg ON b.isbn = bg.book_isbn
                             LEFT JOIN loan l ON b.isbn=l.book_isbn AND l.return_date IS NULL
                 WHERE LOWER(b.title) LIKE LOWER(%s) 
@@ -799,7 +798,7 @@ def find_book_by_isbn():
         cur.execute(
             """
                 SELECT b.isbn, b.title, b.num_pages, b.num_copies,
-                    COALESCE(b.num_copies - COUNT(l.loan_id), b.num_copies) AS available_copies
+                    COALESCE(b.num_copies - COUNT(DISTINCT l.loan_id), b.num_copies) AS available_copies
                 FROM book b JOIN book_genre bg ON b.isbn = bg.book_isbn
                             LEFT JOIN loan l ON b.isbn=l.book_isbn AND l.return_date IS NULL
                 WHERE b.isbn = %s
@@ -1318,9 +1317,11 @@ def available_books_by_genre():
     logger.info('### GET /sgdproj/available_books_by_genre ###')
     payload = request.get_json() or {}
     logger.debug(f'payload: {payload}')
-    if 'username' not in payload or 'password' not in payload:
-        return jsonify({'status': 400,
-                            'errors':'Missing username or password'})
+    required_fields = ['username', 'password','genre_id']
+    for field in required_fields:
+        if field not in payload:
+            return jsonify({'status': 400,
+                            'errors':f'missing required field: {field}'})
     username = payload['username']
     password = payload['password']
 
@@ -1416,9 +1417,11 @@ def check_book():
     logger.info('### GET /sgdproj/check_book ###')
     payload = request.get_json() or {}
     logger.debug(f'payload: {payload}')
-    if 'username' not in payload or 'password' not in payload:
-        return jsonify({'status': 400,
-                            'errors':'Missing username or password'})
+    required_fields = ['username', 'password','ISBN']
+    for field in required_fields:
+        if field not in payload:
+            return jsonify({'status': 400,
+                            'errors':f'missing required field: {field}'})
     username = payload['username']
     password = payload['password']
 
@@ -1561,6 +1564,7 @@ def borrow_book():
         if not book:
             return jsonify({'status': 400,
                             'errors':'Book does not exist'})
+
         total_copies = book[0]
 
         cur.execute("""

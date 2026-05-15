@@ -45,16 +45,178 @@ def query(connection, statement, values=None):
     except (Exception, psycopg2.DatabaseError) as error:
         print(f"Error: {error}")
         connection.rollback()
-    finally: 
         cur.close()
-        
+
 
 conn = db_connection()
 
-with open('../sql/create_db.sql', 'r') as f:
-    sql_script = f.read()
-query(conn, sql_script, None)
-print('DATABASE CREATED')
+drop_tables="""
+DROP TABLE IF EXISTS review CASCADE;
+DROP TABLE IF EXISTS loan CASCADE;
+DROP TABLE IF EXISTS book_author CASCADE;
+DROP TABLE IF EXISTS author CASCADE;
+DROP TABLE IF EXISTS book_genre CASCADE;
+DROP TABLE IF EXISTS book CASCADE;
+DROP TABLE IF EXISTS genre CASCADE;
+DROP TABLE IF EXISTS readers CASCADE;
+DROP TABLE IF EXISTS librarian CASCADE;
+DROP TABLE IF EXISTS admin CASCADE;
+DROP TABLE IF EXISTS administrator CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+"""
+query(conn, drop_tables, None)
+print("DROPPED")
+create_tables = """
+CREATE TABLE users (
+	user_id	 SERIAL,
+	username VARCHAR(50) NOT NULL,
+	email	 VARCHAR(100) NOT NULL,
+	password VARCHAR(255) NOT NULL,
+	PRIMARY KEY(user_id),
+	UNIQUE(username),
+	UNIQUE(email)
+);
+
+CREATE TABLE administrator (
+	users_user_id INTEGER NOT NULL,
+	PRIMARY KEY(users_user_id),
+	CONSTRAINT fk_administrator_user
+	FOREIGN KEY (users_user_id)
+	REFERENCES users(user_id)
+	ON DELETE CASCADE
+);
+
+CREATE TABLE librarian (
+	users_user_id INTEGER NOT NULL,
+	PRIMARY KEY(users_user_id),
+	CONSTRAINT fk_librarian_user
+	FOREIGN KEY (users_user_id)
+	REFERENCES users(user_id)
+	ON DELETE CASCADE
+);
+
+CREATE TABLE readers (
+	users_user_id INTEGER NOT NULL,
+	PRIMARY KEY(users_user_id),
+	CONSTRAINT fk_readers_user
+	FOREIGN KEY (users_user_id)
+	REFERENCES users(user_id)
+	ON DELETE CASCADE
+);
+
+
+CREATE TABLE genre (
+	genre_id SERIAL,
+	name	 VARCHAR(100) NOT NULL UNIQUE,
+	PRIMARY KEY(genre_id)
+);
+
+
+CREATE TABLE book (
+	isbn			 VARCHAR(50),
+	title			 VARCHAR(255) NOT NULL,
+	description		 TEXT,
+	num_pages	     INTEGER NOT NULL,
+	num_copies		 INTEGER NOT NULL,
+	registration_date		 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	administrator_users_user_id INTEGER,
+	PRIMARY KEY(isbn),
+
+	CONSTRAINT fk_book_administrator
+		FOREIGN KEY (administrator_users_user_id)
+		REFERENCES administrator(users_user_id)
+		ON DELETE SET NULL,
+
+	CONSTRAINT chk_num_pages_positive
+		CHECK (num_pages > 0),
+
+	CONSTRAINT chk_num_copies_non_negative
+		CHECK (num_copies >= 0)
+);
+
+
+CREATE TABLE book_genre (
+	book_isbn	 VARCHAR(50) NOT NULL,
+	genre_genre_id INTEGER NOT NULL,
+	PRIMARY KEY(book_isbn, genre_genre_id),
+
+	CONSTRAINT fk_book_genre_book
+		FOREIGN KEY(book_isbn)
+		REFERENCES book(isbn),
+
+	CONSTRAINT fk_book_genre_genre
+		FOREIGN KEY(genre_genre_id)
+		REFERENCES genre(genre_id)
+);
+
+CREATE TABLE author(
+	author_id SERIAL,
+	author_name VARCHAR(255) NOT NULL UNIQUE, 
+	PRIMARY KEY(author_id)
+);
+
+CREATE TABLE book_author(
+	book_isbn VARCHAR(50) NOT NULL,
+	author_author_id INTEGER NOT NULL,
+
+	PRIMARY KEY(book_isbn, author_author_id),
+
+	CONSTRAINT fk_book_author_book
+		FOREIGN KEY(book_isbn)
+		REFERENCES book(isbn),
+
+	CONSTRAINT fk_book_author_author
+		FOREIGN KEY(author_author_id)
+		REFERENCES author(author_id)
+);
+
+CREATE TABLE loan (
+	loan_id		     SERIAL,
+	loan_date		 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	return_date		 TIMESTAMP,
+	readers_users_user_id INTEGER NOT NULL,
+	book_isbn		 VARCHAR(50) NOT NULL,
+	PRIMARY KEY(loan_id),
+
+	CONSTRAINT fk_loan_reader
+		FOREIGN KEY(readers_users_user_id)
+		REFERENCES readers(users_user_id),
+
+	CONSTRAINT fk_loan_book
+		FOREIGN KEY(book_isbn)
+		REFERENCES book(isbn),
+
+	CONSTRAINT chk_return_after_loan
+		CHECK (return_date IS NULL OR return_date >= loan_date)
+);
+
+CREATE TABLE review(
+	review_id		 BIGSERIAL,
+	rating		 INTEGER NOT NULL,
+	comment		 TEXT,
+	review_date		 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	readers_users_user_id INTEGER NOT NULL,
+	book_isbn		 VARCHAR(50) NOT NULL,
+	PRIMARY KEY(review_id),
+
+	CONSTRAINT fk_review_reader
+		FOREIGN KEY (readers_users_user_id)
+		REFERENCES readers(users_user_id),
+
+	CONSTRAINT fk_review_book
+		FOREIGN KEY (book_isbn)
+		REFERENCES book(isbn),
+
+	CONSTRAINT uq_review_reader_book
+		UNIQUE (readers_users_user_id, book_isbn),
+
+	CONSTRAINT chk_rating_range
+		CHECK (rating BETWEEN 1 AND 5)
+		
+);
+"""
+
+query(conn, create_tables, None)
 
 genres_types = pd.read_csv('csv/genre.csv')
 for row in genres_types.values:
@@ -71,7 +233,7 @@ for row in books.values:
 
 book_genre=pd.read_csv('csv/book_genre.csv')
 for row in book_genre.values:
-    query(conn, 'INSERT INTO book_genre (book_isbn, genre_genre_id) values(%s,%s)',(row[0], row[1]))
+    query(conn, 'INSERT INTO book_genre (book_isbn,genre_genre_id) values(%s,%s)',(row[0], row[1]))
 
 authors=pd.read_csv('csv/author.csv')
 for row in authors.values:

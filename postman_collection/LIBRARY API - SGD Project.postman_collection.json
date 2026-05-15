@@ -1,0 +1,698 @@
+{
+	"info": {
+		"_postman_id": "a414debc-dd81-490c-8a6b-53670b93c758",
+		"name": "LIBRARY API - SGD Project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "54205699",
+		"_collection_link": "https://gabrielfurtado-6f499e6f-8431068.postman.co/workspace/gabrielfurtado-6f499e6f's-Works~63621551-654e-4ed0-8210-353c72c9253e/collection/54205699-a414debc-dd81-490c-8a6b-53670b93c758?action=share&source=collection_link&creator=54205699"
+	},
+	"item": [
+		{
+			"name": "1. Register User (POST)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"jdoe_92\",\n  \"email\": \"jane.doe@example.com\",\n  \"password\": \"securePassword123!\",\n  \"role\": \"reader\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Author (POST)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "\n{\n  \"username\": \"danielpotter\",\n  \"password\": \"_4l!LZlsKm\",\n  \"name\": \"Suzanne Collins\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/author",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"author"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Add Book (POST)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": " {\n  \"username\": \"danielpotter\",\n  \"password\": \"_4l!LZlsKm\",\n  \"ISBN\": \"9780702340574\",\n  \"book_name\":\"The Hunger Games: Sunrise On The Reaping\",\n  \"authors\":[\"Suzanne Collins\"],\n  \"book_description\":\"When you've been set up to lose everything you love, what is there left to fight for? As the day dawns on the fiftieth annual Hunger Games, fear grips the districts of Panem. This year, in honour of the Quarter Quell, twice as many tributes will be taken from their homes. Back in District 12, Haymitch Abernathy is trying not to think too hard about his chances. All he cares about is making it through the day and being with the girl he loves. When Haymitch's name is called, he can feel all his dreams break.\",\n  \"pages\":416,\n  \"copies\":2,\n  \"genres\":[\"Adventure\",\"Fantasy\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/book",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"book"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Modify Copies of a Book (PUT)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"danielpotter\",\n    \"password\": \"_4l!LZlsKm\",\n    \"ISBN\": \"9780702340574\",\n    \"copies\": 4\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/update_copies",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"update_copies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4. List Books from Genre (GET)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"lori.hicks\",\n    \"password\": \"D9#S_qaM!j\",\n    \"genre_id\": \"9\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/list_books_by_genre",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"list_books_by_genre"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5.  Find Book by Name (GET)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"lori.hicks\",\n    \"password\": \"D9#S_qaM!j\",\n    \"book_name\": \"The Hunger Games: Sunrise On The Reaping\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/find_book_by_name",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"find_book_by_name"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "6. Find Book by ISBN (GET)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"lori.hicks\",\n    \"password\": \"D9#S_qaM!j\",\n    \"ISBN\": \"979-0-805-722656-7\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/find_book_by_isbn",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"find_book_by_isbn"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "7. Loaned Books (GET)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"lori.hicks\",\n    \"password\": \"D9#S_qaM!j\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/loaned_books",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"loaned_books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "8. Loaned Book (GET)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"lori.hicks\",\n    \"password\": \"D9#S_qaM!j\",\n    \"ISBN\":\"979-0-825-404598-3\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/loaned_book",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"loaned_book"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "9. Generate a Report of Top N Loaned Books (GET)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"danielpotter\",\n    \"password\": \"_4l!LZlsKm\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/TopLoanedBooks/5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"TopLoanedBooks",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10. Generate a Report of Top N Loaners (GET)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"danielpotter\",\n    \"password\": \"_4l!LZlsKm\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/TopLoaners/6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"TopLoaners",
+						"6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "11. Available Books by Genre (GET)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"jdoe_92\",\n    \"password\": \"securePassword123!\",\n    \"genre_id\": 1\n\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/available_books_by_genre",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"available_books_by_genre"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "12. Check Book Reviews (GET)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"jdoe_92\",\n    \"password\": \"securePassword123!\",\n    \"ISBN\": \"979-0-959-987826-1\"\n\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/check_book",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"check_book"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "13. Borrow Book (POST)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"jdoe_92\",\n    \"password\": \"securePassword123!\",\n    \"ISBN\": \"9780702340574\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/borrow_book",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"borrow_book"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "14. Submit Review (POST)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"jdoe_92\",\n    \"password\": \"securePassword123!\",\n    \"ISBN\": \"9780702340574\",\n    \"rating\":5,\n    \"comment\":\"Loved the book the story is thrilling and gave me goosebumps\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/report/submit_review",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"report",
+						"submit_review"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "15. Return Book (POST)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"jdoe_92\",\n    \"password\": \"securePassword123!\",\n    \"ISBN\": \"9780702340574\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/return_book",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"return_book"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "16. Generate a Report of Top N Borrowed Genres in the Last 12 Months",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"danielpotter\",\n  \"password\": \"_4l!LZlsKm\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/report/TopLoanedGenres12Months/5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"report",
+						"TopLoanedGenres12Months",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ERROR - 13. Borrow Book (POST)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"prhodes\",\n  \"password\": \")MG#0yMff7\",\n    \"ISBN\": \"9780702340574\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/borrow_book",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"borrow_book"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ERROR - 14. Submit Review (POST)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"jdoe_92\",\n    \"password\": \"securePassword123!\",\n    \"ISBN\": \"979-0-805-722656-7\",\n    \"rating\":5,\n    \"comment\":\"Loved the book the story is thrilling and gave me goosebumps\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/report/submit_review",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"report",
+						"submit_review"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ERROR - Wrong Password",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"lori.hicks\",\n    \"password\": \"D9#S_qaM!j!\",\n    \"ISBN\": \"979-0-805-722656-7\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/find_book_by_isbn",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"find_book_by_isbn"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ERROR - 15. Return Book (POST)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"jdoe_92\",\n    \"password\": \"securePassword123!\",\n    \"ISBN\": \"979-0-805-722656-7\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/return_book",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"return_book"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ERROR - Add Author (POST)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"jdoe_92\",\n    \"password\": \"securePassword123!\",\n  \"name\": \"Suzanne Collins\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/sgdproj/author",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"sgdproj",
+						"author"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
